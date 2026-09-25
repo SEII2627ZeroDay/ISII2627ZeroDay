@@ -10,5 +10,9 @@ public class Game
     [Key]
     public int Id{get;set;}
 
+    //place
+    [StringLength(256, MinimumLength =5)]
     public string Name{get;set;} = "";
+
+    private string Description{get;set;}="";
 }
