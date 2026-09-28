@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity; //like import in java
 
-namespace AppForSEII.API.Models;
+namespace AppForSEII.API.Models; //like packages in java
 
 // Add profile data for application users by adding properties to the ApplicationUser class
 public class ApplicationUser : IdentityUser
