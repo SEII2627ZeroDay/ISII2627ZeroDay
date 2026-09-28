@@ -18,8 +18,14 @@ public class ApplicationUser : IdentityUser
     }
 
     [StringLength(50)]
-    public string? Name {get;set;}
+    public string? Name { get; set; }
 
     [StringLength(50)]
-    public string? Surname {get;set;}
+    public string? Surname { get; set; }
+
+    public DateOnly BirthDate { get; set; }
+
+    public int Age { get; set; }
+
+    public Gender Gender { get; set; }
 }
