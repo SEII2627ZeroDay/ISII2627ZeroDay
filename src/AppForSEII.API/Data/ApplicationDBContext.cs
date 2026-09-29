@@ -21,5 +21,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<Game> Games {get;set;} //get and set are like getters and setters of java
 
+    public DbSet<Sport> Sports { get; set; }
+
 
 }
