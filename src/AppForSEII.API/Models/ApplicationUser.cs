@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity; //like import in java
 
-namespace AppForSEII.API.Models;
+namespace AppForSEII.API.Models; //like packages in java
 
 // Add profile data for application users by adding properties to the ApplicationUser class
 public class ApplicationUser : IdentityUser
@@ -18,8 +18,14 @@ public class ApplicationUser : IdentityUser
     }
 
     [StringLength(50)]
-    public string? Name {get;set;}
+    public string? Name { get; set; }
 
     [StringLength(50)]
-    public string? Surname {get;set;}
+    public string? Surname { get; set; }
+
+    public DateOnly BirthDate { get; set; }
+
+    public int Age { get; set; }
+
+    public Gender Gender { get; set; }
 }
