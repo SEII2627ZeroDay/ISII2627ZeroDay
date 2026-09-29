@@ -22,5 +22,5 @@ public class Game
     public string Place{get;set;} = "More than 5 chars";
 
     //description
-    private string Description{get;set;}="";
+    private string? Description{get;set;}="";
 }
