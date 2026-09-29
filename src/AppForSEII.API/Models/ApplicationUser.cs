@@ -28,4 +28,10 @@ public class ApplicationUser : IdentityUser
     public int Age { get; set; }
 
     public Gender Gender { get; set; }
+
+    public IList<Team> CaptainedTeams { get; set; } = new List<Team>();
+
+    public IList<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();
+
+    public IList<InterestedIn> InterestedIns { get; set; } = new List<InterestedIn>();
 }

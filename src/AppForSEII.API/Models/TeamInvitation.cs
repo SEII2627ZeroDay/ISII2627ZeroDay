@@ -1,7 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppForSEII.API.Models;
 
+[PrimaryKey(nameof(UserId), nameof(TeamId))]
 public class TeamInvitation
 {
     [Required]
@@ -14,4 +17,10 @@ public class TeamInvitation
 
     [MinLength(3)]
     public string InvitationMessage { get; set; } = "Invitation Message for a team member";
+
+    [ForeignKey(nameof(UserId))]
+    public ApplicationUser User { get; set; } = null!;
+
+    [ForeignKey(nameof(TeamId))]
+    public Team Team { get; set; } = null!;
 }
