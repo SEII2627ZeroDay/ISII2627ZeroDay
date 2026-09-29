@@ -4,8 +4,10 @@ namespace AppForSEII.API.Models;
 
 public class TeamInvitation
 {
+    [Required]
     public string UserId { get; set; } = "0";
 
+    [Required]
     public int TeamId { get; set; }
 
     public bool InvitationAccepted { get; set; } = false;
