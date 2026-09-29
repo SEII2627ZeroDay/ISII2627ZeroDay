@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace AppForSEII.API.Models;
@@ -25,4 +26,15 @@ public class Team
     [Range(3, int.MaxValue)]
     public int MaxAge { get; set; } = 3;
 
+    public string CaptainId { get; set; } = "";
+
+    [ForeignKey(nameof(CaptainId))]
+    public ApplicationUser Captain { get; set; } = null!;
+
+    public int SportId { get; set; }
+
+    [ForeignKey(nameof(SportId))]
+    public Sport Sport { get; set; } = null!;
+
+    public IList<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();
 }

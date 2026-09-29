@@ -19,4 +19,8 @@ public class Sport
     public string Description { get; set; } = "Description";
 
     public string BasicRules { get; set; } = "Rules for the game";
+
+    public IList<Team> Teams { get; set; } = new List<Team>();
+
+    public IList<InterestedIn> InterestedIns { get; set; } = new List<InterestedIn>();
 }
