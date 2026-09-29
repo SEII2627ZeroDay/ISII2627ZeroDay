@@ -19,6 +19,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<Referee> Referee { get; set;}
     public DbSet<Team> Teams { get; set; }
 
     public DbSet<Game> Games {get;set;} //get and set are like getters and setters of java
@@ -26,6 +27,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<TeamInvitation> TeamInvitations { get; set; }
     public DbSet<Sport> Sports { get; set; }
     public DbSet<InterestedIn> InterestedIns { get; set; }
+    public DbSet<RefereeGroup> RefereeGroup { get; set; }
+    
 
 
 
