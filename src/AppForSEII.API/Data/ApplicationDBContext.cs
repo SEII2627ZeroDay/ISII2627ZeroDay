@@ -25,6 +25,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Team> Gender { get; set; }
     public DbSet<TeamInvitation> TeamInvitations { get; set; }
     public DbSet<Sport> Sports { get; set; }
+    public DbSet<InterestedIn> InterestedIns { get; set; }
 
 
 
