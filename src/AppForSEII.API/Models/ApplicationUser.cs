@@ -8,6 +8,7 @@ public class ApplicationUser : IdentityUser
     public ApplicationUser()
     {
     }
+
     public ApplicationUser(string id, string name, string surname, string userName)
     {
         Id = id;
@@ -15,6 +16,14 @@ public class ApplicationUser : IdentityUser
         Surname = surname;
         UserName = userName;
         Email = userName;
+    }
+
+    public ApplicationUser(string id, string name, string surname, string userName, DateOnly birthDate, int age, Gender gender)
+        : this(id, name, surname, userName)
+    {
+        BirthDate = birthDate;
+        Age = age;
+        Gender = gender;
     }
 
     [StringLength(50)]
@@ -29,9 +38,12 @@ public class ApplicationUser : IdentityUser
 
     public Gender Gender { get; set; }
 
-    public IList<Team> CaptainedTeams { get; set; } = new List<Team>();
+    [InverseProperty("Captain")]
+    public IList<Team> CaptainOf { get; set; } = new List<Team>();
 
+    [InverseProperty("User")]
     public IList<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();
 
-    public IList<InterestedIn> InterestedIns { get; set; } = new List<InterestedIn>();
+    [InverseProperty("User")]
+    public IList<InterestedIn> Interested { get; set; } = new List<InterestedIn>();
 }
