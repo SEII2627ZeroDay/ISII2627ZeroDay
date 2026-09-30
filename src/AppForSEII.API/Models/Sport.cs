@@ -1,12 +1,25 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace AppForSEII.API.Models;
 
 [Index(nameof(Name), IsUnique = true)]
-
 public class Sport
 {
+    public Sport()
+    {
+    }
+
+    public Sport(string name, int minimumNumberOfPlayers, int numberofReferees, string description, string basicRules)
+    {
+        Name = name;
+        MinimumNumberOfPlayers = minimumNumberOfPlayers;
+        NumberofReferees = numberofReferees;
+        Description = description;
+        BasicRules = basicRules;
+    }
+
     [Key]
     public int Id { get; set; }
 
@@ -20,7 +33,9 @@ public class Sport
 
     public string BasicRules { get; set; } = "Rules for the game";
 
+    [InverseProperty("Sport")]
     public IList<Team> Teams { get; set; } = new List<Team>();
 
-    public IList<InterestedIn> InterestedIns { get; set; } = new List<InterestedIn>();
+    [InverseProperty("Sport")]
+    public IList<InterestedIn> Interested { get; set; } = new List<InterestedIn>();
 }
