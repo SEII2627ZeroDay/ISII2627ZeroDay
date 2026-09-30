@@ -44,6 +44,6 @@ public class ApplicationUser : IdentityUser
     [InverseProperty("User")]
     public IList<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();
 
-    [InverseProperty("User")]
+    [InverseProperty("UserInterested")]
     public IList<InterestedIn> Interested { get; set; } = new List<InterestedIn>();
 }
