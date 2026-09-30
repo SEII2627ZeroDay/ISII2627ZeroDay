@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Identity; //like import in java
+using Microsoft.AspNetCore.Identity;
 
-namespace AppForSEII.API.Models; //like packages in java
+namespace AppForSEII.API.Models;
 
-// Add profile data for application users by adding properties to the ApplicationUser class
 public class ApplicationUser : IdentityUser
 {
     public ApplicationUser()
@@ -38,12 +37,9 @@ public class ApplicationUser : IdentityUser
 
     public Gender Gender { get; set; }
 
-    [InverseProperty("Captain")]
     public IList<Team> CaptainOf { get; set; } = new List<Team>();
 
-    [InverseProperty("User")]
     public IList<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();
 
-    [InverseProperty("UserInterested")]
     public IList<InterestedIn> Interested { get; set; } = new List<InterestedIn>();
 }
