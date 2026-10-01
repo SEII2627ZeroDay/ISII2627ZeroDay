@@ -1,5 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace AppForSEII.API.Models;
+
 public class Referee
 {
-public int Rating {get; set;}
-public int YearsRefereeing {get; set;}
+    [Key]
+    public string Id { get; set; } = "0";
+
+    public int Rating { get; set; }
+
+    public int YearsRefereeing { get; set; }
 }
