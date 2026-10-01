@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppForSEII.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261001190708_FixDeleteBehaviorAndRenameMinimumNumberofTeams")]
-    partial class FixDeleteBehaviorAndRenameMinimumNumberofTeams
+    [Migration("20261001205700_CreateIdentitySchema")]
+    partial class CreateIdentitySchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
