@@ -19,6 +19,7 @@ public class TeamInvitation
     public string InvitationMessage { get; set; } = "Invitation Message for a team member";
 
     [ForeignKey(nameof(UserId))]
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public ApplicationUser User { get; set; } = null!;
 
     [ForeignKey(nameof(TeamId))]
