@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 namespace AppForSEII.API.Models;
 
 [Index(nameof(Name), IsUnique = true)]
-
 public class Team
 {
     [Key]
@@ -34,6 +33,7 @@ public class Team
     public int SportId { get; set; }
 
     [ForeignKey(nameof(SportId))]
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public Sport Sport { get; set; } = null!;
 
     public IList<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();

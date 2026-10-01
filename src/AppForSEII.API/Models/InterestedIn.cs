@@ -20,5 +20,6 @@ public class InterestedIn
     public Sport Sport { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))]
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public ApplicationUser UserInterested { get; set; } = null!;
 }
