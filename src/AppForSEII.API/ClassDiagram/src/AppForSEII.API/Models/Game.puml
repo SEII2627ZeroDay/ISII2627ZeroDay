@@ -1,0 +1,9 @@
+@startuml
+class Game {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>> = ""
+    + Place : string <<get>> <<set>> = "More than 5 chars"
+    - Description : string? <<get>> <<set>> = ""
+}
+Game --> "Date" DateTime
+@enduml

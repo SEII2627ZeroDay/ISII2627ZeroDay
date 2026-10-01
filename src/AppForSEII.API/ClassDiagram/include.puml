@@ -2,8 +2,90 @@
 class ApplicationUser {
     + ApplicationUser()
     + ApplicationUser(id:string, name:string, surname:string, userName:string)
+    + ApplicationUser(id:string, name:string, surname:string, userName:string, birthDate:DateOnly, age:int, gender:Gender)
     + Name : string? <<get>> <<set>>
     + Surname : string? <<get>> <<set>>
+    + Age : int <<get>> <<set>>
+}
+class "IList`1"<T> {
 }
 IdentityUser <|-- ApplicationUser
+ApplicationUser --> "BirthDate" DateOnly
+ApplicationUser --> "Gender" Gender
+ApplicationUser o-> "CaptainOf<Team>" "IList`1"
+ApplicationUser o-> "TeamInvitations<TeamInvitation>" "IList`1"
+ApplicationUser o-> "Interested<InterestedIn>" "IList`1"
+class Game {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>> = ""
+    + Place : string <<get>> <<set>> = "More than 5 chars"
+    - Description : string? <<get>> <<set>> = ""
+}
+Game --> "Date" DateTime
+enum Gender {
+    Female,
+    Male,
+    Other,
+}
+class InterestedIn {
+    + SportId : int <<get>> <<set>>
+    + UserId : string <<get>> <<set>> = "0"
+    + Skill : int <<get>> <<set>> = 5
+}
+InterestedIn o-> "Sport" Sport
+InterestedIn o-> "UserInterested" ApplicationUser
+class Referee {
+    + Id : string <<get>> <<set>> = "0"
+    + Rating : int <<get>> <<set>>
+    + YearsRefereeing : int <<get>> <<set>>
+}
+class RefereeAssignedTo {
+    + RefereeGroupId : int <<get>> <<set>>
+    + RefereeId : string <<get>> <<set>> = "0"
+    + AcceptedAssignement : bool <<get>> <<set>> = false
+    + Role : string <<get>> <<set>> = "Name of the role has to be between 3 and 20 characters"
+    + RoleDescription : string <<get>> <<set>> = "Between 3 and 255 chars"
+}
+class RefereeGroup {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>> = "Name between 3 and 20 chars"
+    + Description : string <<get>> <<set>> = "Description"
+    + Rules : string <<get>> <<set>> = "Rules for the game"
+    + GameId : int <<get>> <<set>>
+}
+class Sport {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>> = "Game"
+    + MinimumNumberOfPlayers : int <<get>> <<set>> = 2
+    + NumberofReferees : int <<get>> <<set>> = 1
+    + Description : string <<get>> <<set>> = "Description"
+    + BasicRules : string <<get>> <<set>> = "Rules for the game"
+}
+class "IList`1"<T> {
+}
+Sport o-> "Teams<Team>" "IList`1"
+Sport o-> "Interested<InterestedIn>" "IList`1"
+class Team {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>> = "Team name"
+    + Description : string? <<get>> <<set>> = "Team name"
+    + MaxMembers : int <<get>> <<set>>
+    + MinAge : int <<get>> <<set>> = 3
+    + MaxAge : int <<get>> <<set>> = 3
+    + CaptainId : string <<get>> <<set>> = ""
+    + SportId : int <<get>> <<set>>
+}
+class "IList`1"<T> {
+}
+Team o-> "Captain" ApplicationUser
+Team o-> "Sport" Sport
+Team o-> "TeamInvitations<TeamInvitation>" "IList`1"
+class TeamInvitation {
+    + UserId : string <<get>> <<set>> = "0"
+    + TeamId : int <<get>> <<set>>
+    + InvitationAccepted : bool <<get>> <<set>> = false
+    + InvitationMessage : string <<get>> <<set>> = "Invitation Message for a team member"
+}
+TeamInvitation o-> "User" ApplicationUser
+TeamInvitation o-> "Team" Team
 @enduml

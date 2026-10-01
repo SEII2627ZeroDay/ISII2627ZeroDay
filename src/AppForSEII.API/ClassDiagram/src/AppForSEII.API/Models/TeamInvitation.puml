@@ -1,0 +1,10 @@
+@startuml
+class TeamInvitation {
+    + UserId : string <<get>> <<set>> = "0"
+    + TeamId : int <<get>> <<set>>
+    + InvitationAccepted : bool <<get>> <<set>> = false
+    + InvitationMessage : string <<get>> <<set>> = "Invitation Message for a team member"
+}
+TeamInvitation o-> "User" ApplicationUser
+TeamInvitation o-> "Team" Team
+@enduml
