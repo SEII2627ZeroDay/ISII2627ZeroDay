@@ -1,4 +1,7 @@
 using Microsoft.Net.Http.Headers;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppForSEII.API.Models;
 
@@ -12,26 +15,35 @@ public class Game
     public int Id{get;set;}
 
     //name
+    [Required]
     public string Name{get;set;} = "";
 
     //date
+    [Required]
     public DateTime Date{get;set;}
 
     //place
+    [Required]
     [StringLength(256, MinimumLength =5)]
     public string Place{get;set;} = "More than 5 chars";
 
     //description
-    private string? Description{get;set;}="";
-      // Sport relationship
-    public int SportId { get; set; }
-    public Sport Sport { get; set; } = null!;
+    public string? Description{get;set;}="";
 
-    // ResponsibleFor relationship
+    //Realtion Team (ResponsibleFor)
+    [Required]
     public string ResponsibleForId { get; set; } = "";
+    [ForeignKey(nameof(ResponsibleForId))]
+    [DeleteBehavior(DeleteBehavior.NoAction)]
     public ApplicationUser ResponsibleFor { get; set; } = null!;
 
-    // RefereeGroup relationship
-    public int? RefereeGroupId { get; set; }
-    public RefereeGroup? RefereeGroup { get; set; }
+    //Relation Sport
+    [Required]
+    public int SportId { get; set; }
+    [ForeignKey(nameof(SportId))]
+    [DeleteBehavior(DeleteBehavior.NoAction)]
+    public Sport Sport { get; set; } = null!;
+
+    //Relation GameInvitation
+    public IList<GameInvitation> GameInvitations { get; set; } = new List<GameInvitation>();
 }
