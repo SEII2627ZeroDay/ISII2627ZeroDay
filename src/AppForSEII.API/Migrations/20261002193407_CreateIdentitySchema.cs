@@ -56,50 +56,6 @@ namespace AppForSEII.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Games",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Place = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Games", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Referee",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    YearsRefereeing = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Referee", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RefereeGroup",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rules = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GameId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RefereeGroup", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Sports",
                 columns: table => new
                 {
@@ -223,6 +179,34 @@ namespace AppForSEII.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Games",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Place = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ResponsibleForId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SportId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Games", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Games_AspNetUsers_ResponsibleForId",
+                        column: x => x.ResponsibleForId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Games_Sports_SportId",
+                        column: x => x.SportId,
+                        principalTable: "Sports",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "InterestedIns",
                 columns: table => new
                 {
@@ -244,6 +228,30 @@ namespace AppForSEII.API.Migrations
                         principalTable: "Sports",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Referee",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    YearsRefereeing = table.Column<int>(type: "int", nullable: false),
+                    SportId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Referee", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Referee_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Referee_Sports_SportId",
+                        column: x => x.SportId,
+                        principalTable: "Sports",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -277,6 +285,52 @@ namespace AppForSEII.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RefereeGroup",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Rules = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GameId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefereeGroup", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefereeGroup_Games_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Games",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GameInvitations",
+                columns: table => new
+                {
+                    TeamId = table.Column<int>(type: "int", nullable: false),
+                    GameId = table.Column<int>(type: "int", nullable: false),
+                    AcceptedGame = table.Column<bool>(type: "bit", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GameInvitations", x => new { x.TeamId, x.GameId });
+                    table.ForeignKey(
+                        name: "FK_GameInvitations_Games_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Games",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_GameInvitations_Teams_TeamId",
+                        column: x => x.TeamId,
+                        principalTable: "Teams",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TeamInvitations",
                 columns: table => new
                 {
@@ -299,6 +353,32 @@ namespace AppForSEII.API.Migrations
                         principalTable: "Teams",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefereeAssignedTo",
+                columns: table => new
+                {
+                    RefereeGroupId = table.Column<int>(type: "int", nullable: false),
+                    RefereeId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AcceptedAssignement = table.Column<bool>(type: "bit", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    RoleDescription = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefereeAssignedTo", x => new { x.RefereeGroupId, x.RefereeId });
+                    table.ForeignKey(
+                        name: "FK_RefereeAssignedTo_RefereeGroup_RefereeGroupId",
+                        column: x => x.RefereeGroupId,
+                        principalTable: "RefereeGroup",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RefereeAssignedTo_Referee_RefereeId",
+                        column: x => x.RefereeId,
+                        principalTable: "Referee",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -341,15 +421,52 @@ namespace AppForSEII.API.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GameInvitations_GameId",
+                table: "GameInvitations",
+                column: "GameId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Games_Name",
                 table: "Games",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Games_ResponsibleForId",
+                table: "Games",
+                column: "ResponsibleForId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Games_SportId",
+                table: "Games",
+                column: "SportId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_InterestedIns_UserId",
                 table: "InterestedIns",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Referee_SportId",
+                table: "Referee",
+                column: "SportId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefereeAssignedTo_RefereeId",
+                table: "RefereeAssignedTo",
+                column: "RefereeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefereeGroup_GameId",
+                table: "RefereeGroup",
+                column: "GameId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefereeGroup_Name",
+                table: "RefereeGroup",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sports_Name",
@@ -398,16 +515,13 @@ namespace AppForSEII.API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Games");
+                name: "GameInvitations");
 
             migrationBuilder.DropTable(
                 name: "InterestedIns");
 
             migrationBuilder.DropTable(
-                name: "Referee");
-
-            migrationBuilder.DropTable(
-                name: "RefereeGroup");
+                name: "RefereeAssignedTo");
 
             migrationBuilder.DropTable(
                 name: "TeamInvitations");
@@ -416,7 +530,16 @@ namespace AppForSEII.API.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "RefereeGroup");
+
+            migrationBuilder.DropTable(
+                name: "Referee");
+
+            migrationBuilder.DropTable(
                 name: "Teams");
+
+            migrationBuilder.DropTable(
+                name: "Games");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
