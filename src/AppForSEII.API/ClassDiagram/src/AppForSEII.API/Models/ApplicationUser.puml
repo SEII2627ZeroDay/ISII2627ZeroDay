@@ -15,4 +15,5 @@ ApplicationUser --> "Gender" Gender
 ApplicationUser o-> "CaptainOf<Team>" "IList`1"
 ApplicationUser o-> "TeamInvitations<TeamInvitation>" "IList`1"
 ApplicationUser o-> "Interested<InterestedIn>" "IList`1"
+ApplicationUser o-> "ResponsibleOf<Game>" "IList`1"
 @enduml

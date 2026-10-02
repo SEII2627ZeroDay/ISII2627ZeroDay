@@ -1,0 +1,10 @@
+@startuml
+class GameInvitation {
+    + TeamId : int <<get>> <<set>>
+    + GameId : int <<get>> <<set>>
+    + AcceptedGame : bool <<get>> <<set>> = false
+    + Message : string <<get>> <<set>> = "Message more than 10 chars"
+}
+GameInvitation o-> "Team" Team
+GameInvitation o-> "Game" Game
+@enduml

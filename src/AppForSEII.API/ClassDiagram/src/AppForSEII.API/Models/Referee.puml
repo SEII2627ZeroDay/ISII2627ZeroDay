@@ -3,5 +3,11 @@ class Referee {
     + Id : string <<get>> <<set>> = "0"
     + Rating : int <<get>> <<set>>
     + YearsRefereeing : int <<get>> <<set>>
+    + SportId : int <<get>> <<set>>
 }
+class "IList`1"<T> {
+}
+Referee o-> "SportForReferee" Sport
+Referee o-> "User" ApplicationUser
+Referee o-> "RefereeAssignedTos<RefereeAssignedTo>" "IList`1"
 @enduml
