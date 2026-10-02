@@ -23,4 +23,15 @@ public class Game
 
     //description
     private string? Description{get;set;}="";
+      // Sport relationship
+    public int SportId { get; set; }
+    public Sport Sport { get; set; } = null!;
+
+    // ResponsibleFor relationship
+    public string ResponsibleForId { get; set; } = "";
+    public ApplicationUser ResponsibleFor { get; set; } = null!;
+
+    // RefereeGroup relationship
+    public int? RefereeGroupId { get; set; }
+    public RefereeGroup? RefereeGroup { get; set; }
 }

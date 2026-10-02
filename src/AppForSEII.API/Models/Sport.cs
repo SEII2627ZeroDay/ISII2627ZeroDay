@@ -22,4 +22,6 @@ public class Sport
     public IList<Team> Teams { get; set; } = new List<Team>();
 
     public IList<InterestedIn> Interested { get; set; } = new List<InterestedIn>();
+    public IList<Game> Games { get; set; } = new List<Game>();
+     public IList<Referee> Referees { get; set; }= new List<Referee>();
 }
