@@ -37,4 +37,7 @@ public class Team
     public Sport Sport { get; set; } = null!;
 
     public IList<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();
+    
+    public IList<GameInvitation> GameInvitations { get; set; } = new List<GameInvitation>();
+
 }

@@ -29,8 +29,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<InterestedIn> InterestedIns { get; set; }
     public DbSet<RefereeGroup> RefereeGroup { get; set; }
     public DbSet<RefereeAssignedTo> RefereeAssignedTo { get; set; }
-
-
-
+    public DbSet<GameInvitation> GameInvitations {get; set;}
 
 }
