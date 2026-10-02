@@ -33,9 +33,11 @@ public class SeedData
         try
         {
             SeedSports(dbContext);
-            SeedGamesAndReferees(dbContext);
             SeedTeamsAndInvitations(dbContext);
             SeedInterests(dbContext);
+            SeedReferees(dbContext);
+            SeedGamesAndInvitations(dbContext);
+            SeedRefereeGroupsAndAssignments(dbContext);
         }
         catch (Exception ex)
         {
@@ -144,6 +146,48 @@ public class SeedData
                 userManager.AddToRoleAsync(user, roles[2]).Wait();
             }
         }
+
+        if (userManager.FindByNameAsync("carlos@uclm.es").Result == null)
+        {
+            ApplicationUser user = new ApplicationUser(
+                "6",
+                "Carlos",
+                "Gómez Soto",
+                "carlos@uclm.es",
+                new DateOnly(1992, 4, 12),
+                34,
+                Gender.Male)
+            {
+                EmailConfirmed = true
+            };
+
+            var result = userManager.CreateAsync(user, "RefereePass12$").Result;
+            if (result.Succeeded)
+            {
+                userManager.AddToRoleAsync(user, roles[1]).Wait();
+            }
+        }
+
+        if (userManager.FindByNameAsync("ana@uclm.es").Result == null)
+        {
+            ApplicationUser user = new ApplicationUser(
+                "7",
+                "Ana",
+                "Torres Blanco",
+                "ana@uclm.es",
+                new DateOnly(1995, 9, 30),
+                31,
+                Gender.Female)
+            {
+                EmailConfirmed = true
+            };
+
+            var result = userManager.CreateAsync(user, "RefereePass12$").Result;
+            if (result.Succeeded)
+            {
+                userManager.AddToRoleAsync(user, roles[1]).Wait();
+            }
+        }
     }
 
     public static void SeedSports(ApplicationDbContext dbContext)
@@ -191,42 +235,87 @@ public class SeedData
         }
     }
 
-    public static void SeedGamesAndReferees(ApplicationDbContext dbContext)
+    public static void SeedReferees(ApplicationDbContext dbContext)
+    {
+        if (!dbContext.Referee.Any())
+        {
+            var football = dbContext.Sports.FirstOrDefault(s => s.Name == "Football");
+            if (football != null)
+            {
+                var referees = new List<Referee>
+                {
+                    new Referee { Id = "6", Rating = 5, YearsRefereeing = 8, SportId = football.Id },
+                    new Referee { Id = "7", Rating = 4, YearsRefereeing = 4, SportId = football.Id }
+                };
+
+                dbContext.Referee.AddRange(referees);
+                dbContext.SaveChanges();
+            }
+        }
+    }
+
+    public static void SeedGamesAndInvitations(ApplicationDbContext dbContext)
     {
         if (!dbContext.Games.Any())
         {
-            var games = new List<Game>
+            var football = dbContext.Sports.FirstOrDefault(s => s.Name == "Football");
+            var basketball = dbContext.Sports.FirstOrDefault(s => s.Name == "Basketball");
+
+            var games = new List<Game>();
+
+            if (football != null)
             {
-                new Game
+                games.Add(new Game
                 {
                     Name = "Final Cup 2026",
                     Date = DateTime.UtcNow.AddDays(7),
-                    Place = "Campus Central Stadium"
-                },
-                new Game
+                    Place = "Campus Central Stadium",
+                    Description = "University Championship Final Match",
+                    SportId = football.Id,
+                    ResponsibleForId = "1" // Elena
+                });
+            }
+
+            if (basketball != null)
+            {
+                games.Add(new Game
                 {
                     Name = "Spring Derby",
                     Date = DateTime.UtcNow.AddDays(14),
-                    Place = "Sports Complex Arena A"
-                }
-            };
+                    Place = "Sports Complex Arena A",
+                    Description = "Spring Derby Basketball Game",
+                    SportId = basketball.Id,
+                    ResponsibleForId = "3" // Peter
+                });
+            }
 
             dbContext.Games.AddRange(games);
             dbContext.SaveChanges();
         }
 
-        if (!dbContext.Referee.Any())
+        if (!dbContext.GameInvitations.Any())
         {
-            var referees = new List<Referee>
+            var eagles = dbContext.Teams.FirstOrDefault(t => t.Name == "Eagles");
+            var finalCup = dbContext.Games.FirstOrDefault(g => g.Name == "Final Cup 2026");
+
+            if (eagles != null && finalCup != null)
             {
-                new Referee { Id = "ref-1", Rating = 5, YearsRefereeing = 8 },
-                new Referee { Id = "ref-2", Rating = 4, YearsRefereeing = 4 }
-            };
+                var invitation = new GameInvitation
+                {
+                    TeamId = eagles.Id,
+                    GameId = finalCup.Id,
+                    AcceptedGame = true,
+                    Message = "Invitation to participate in the Final Cup 2026 match."
+                };
 
-            dbContext.Referee.AddRange(referees);
-            dbContext.SaveChanges();
+                dbContext.GameInvitations.Add(invitation);
+                dbContext.SaveChanges();
+            }
         }
+    }
 
+    public static void SeedRefereeGroupsAndAssignments(ApplicationDbContext dbContext)
+    {
         if (!dbContext.RefereeGroup.Any())
         {
             var firstGame = dbContext.Games.FirstOrDefault();
@@ -241,6 +330,36 @@ public class SeedData
                 };
 
                 dbContext.RefereeGroup.Add(refereeGroup);
+                dbContext.SaveChanges();
+            }
+        }
+
+        if (!dbContext.RefereeAssignedTo.Any())
+        {
+            var refGroup = dbContext.RefereeGroup.FirstOrDefault(rg => rg.Name == "Main Ref Group");
+            if (refGroup != null)
+            {
+                var assignments = new List<RefereeAssignedTo>
+                {
+                    new RefereeAssignedTo
+                    {
+                        RefereeGroupId = refGroup.Id,
+                        RefereeId = "6", // Carlos
+                        AcceptedAssignement = true,
+                        Role = "Head Referee",
+                        RoleDescription = "Chief referee supervising the game"
+                    },
+                    new RefereeAssignedTo
+                    {
+                        RefereeGroupId = refGroup.Id,
+                        RefereeId = "7", // Ana
+                        AcceptedAssignement = false,
+                        Role = "Assistant Referee",
+                        RoleDescription = "Assistant referee on the touchline"
+                    }
+                };
+
+                dbContext.RefereeAssignedTo.AddRange(assignments);
                 dbContext.SaveChanges();
             }
         }
