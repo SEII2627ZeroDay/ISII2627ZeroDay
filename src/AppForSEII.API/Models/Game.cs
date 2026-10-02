@@ -46,4 +46,6 @@ public class Game
 
     //Relation GameInvitation
     public IList<GameInvitation> GameInvitations { get; set; } = new List<GameInvitation>();
+    public RefereeGroup? RefereeGroup { get; set; }
+  
 }
