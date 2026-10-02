@@ -15,13 +15,30 @@ ApplicationUser --> "Gender" Gender
 ApplicationUser o-> "CaptainOf<Team>" "IList`1"
 ApplicationUser o-> "TeamInvitations<TeamInvitation>" "IList`1"
 ApplicationUser o-> "Interested<InterestedIn>" "IList`1"
+ApplicationUser o-> "ResponsibleOf<Game>" "IList`1"
 class Game {
     + Id : int <<get>> <<set>>
     + Name : string <<get>> <<set>> = ""
     + Place : string <<get>> <<set>> = "More than 5 chars"
-    - Description : string? <<get>> <<set>> = ""
+    + Description : string? <<get>> <<set>> = ""
+    + ResponsibleForId : string <<get>> <<set>> = ""
+    + SportId : int <<get>> <<set>>
+}
+class "IList`1"<T> {
 }
 Game --> "Date" DateTime
+Game o-> "ResponsibleFor" ApplicationUser
+Game o-> "Sport" Sport
+Game o-> "GameInvitations<GameInvitation>" "IList`1"
+Game --> "RefereeGroup" RefereeGroup
+class GameInvitation {
+    + TeamId : int <<get>> <<set>>
+    + GameId : int <<get>> <<set>>
+    + AcceptedGame : bool <<get>> <<set>> = false
+    + Message : string <<get>> <<set>> = "Message more than 10 chars"
+}
+GameInvitation o-> "Team" Team
+GameInvitation o-> "Game" Game
 enum Gender {
     Female,
     Male,
@@ -38,21 +55,33 @@ class Referee {
     + Id : string <<get>> <<set>> = "0"
     + Rating : int <<get>> <<set>>
     + YearsRefereeing : int <<get>> <<set>>
+    + SportId : int <<get>> <<set>>
 }
+class "IList`1"<T> {
+}
+Referee o-> "SportForReferee" Sport
+Referee o-> "User" ApplicationUser
+Referee o-> "RefereeAssignedTos<RefereeAssignedTo>" "IList`1"
 class RefereeAssignedTo {
     + RefereeGroupId : int <<get>> <<set>>
     + RefereeId : string <<get>> <<set>> = "0"
     + AcceptedAssignement : bool <<get>> <<set>> = false
-    + Role : string <<get>> <<set>> = "Name of the role has to be between 3 and 20 characters"
-    + RoleDescription : string <<get>> <<set>> = "Between 3 and 255 chars"
+    + Role : string <<get>> <<set>> = "Name of the Role has to be between 3 and 20 characters"
+    + RoleDescription : string <<get>> <<set>> = " Between 3 and 255 chars"
 }
+RefereeAssignedTo o-> "RefereeGroup" RefereeGroup
+RefereeAssignedTo o-> "Referee" Referee
 class RefereeGroup {
     + Id : int <<get>> <<set>>
     + Name : string <<get>> <<set>> = "Name between 3 and 20 chars"
-    + Description : string <<get>> <<set>> = "Description"
-    + Rules : string <<get>> <<set>> = "Rules for the game"
+    + Description : string? <<get>> <<set>> = "Description"
+    + Rules : string? <<get>> <<set>> = "Rules for the game"
     + GameId : int <<get>> <<set>>
 }
+class "IList`1"<T> {
+}
+RefereeGroup o-> "Game" Game
+RefereeGroup o-> "RefereeAssignedTos<RefereeAssignedTo>" "IList`1"
 class Sport {
     + Id : int <<get>> <<set>>
     + Name : string <<get>> <<set>> = "Game"
@@ -65,6 +94,8 @@ class "IList`1"<T> {
 }
 Sport o-> "Teams<Team>" "IList`1"
 Sport o-> "Interested<InterestedIn>" "IList`1"
+Sport o-> "Games<Game>" "IList`1"
+Sport o-> "Referees<Referee>" "IList`1"
 class Team {
     + Id : int <<get>> <<set>>
     + Name : string <<get>> <<set>> = "Team name"
@@ -80,6 +111,7 @@ class "IList`1"<T> {
 Team o-> "Captain" ApplicationUser
 Team o-> "Sport" Sport
 Team o-> "TeamInvitations<TeamInvitation>" "IList`1"
+Team o-> "GameInvitations<GameInvitation>" "IList`1"
 class TeamInvitation {
     + UserId : string <<get>> <<set>> = "0"
     + TeamId : int <<get>> <<set>>

@@ -11,4 +11,6 @@ class "IList`1"<T> {
 }
 Sport o-> "Teams<Team>" "IList`1"
 Sport o-> "Interested<InterestedIn>" "IList`1"
+Sport o-> "Games<Game>" "IList`1"
+Sport o-> "Referees<Referee>" "IList`1"
 @enduml
