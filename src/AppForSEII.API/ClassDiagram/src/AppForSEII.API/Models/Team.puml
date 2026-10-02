@@ -1,0 +1,17 @@
+@startuml
+class Team {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>> = "Team name"
+    + Description : string? <<get>> <<set>> = "Team name"
+    + MaxMembers : int <<get>> <<set>>
+    + MinAge : int <<get>> <<set>> = 3
+    + MaxAge : int <<get>> <<set>> = 3
+    + CaptainId : string <<get>> <<set>> = ""
+    + SportId : int <<get>> <<set>>
+}
+class "IList`1"<T> {
+}
+Team o-> "Captain" ApplicationUser
+Team o-> "Sport" Sport
+Team o-> "TeamInvitations<TeamInvitation>" "IList`1"
+@enduml

@@ -1,0 +1,9 @@
+@startuml
+class RefereeGroup {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>> = "Name between 3 and 20 chars"
+    + Description : string <<get>> <<set>> = "Description"
+    + Rules : string <<get>> <<set>> = "Rules for the game"
+    + GameId : int <<get>> <<set>>
+}
+@enduml
