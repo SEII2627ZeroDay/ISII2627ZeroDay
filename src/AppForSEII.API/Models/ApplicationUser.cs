@@ -42,6 +42,6 @@ public class ApplicationUser : IdentityUser
     public IList<TeamInvitation> TeamInvitations { get; set; } = new List<TeamInvitation>();
 
     public IList<InterestedIn> Interested { get; set; } = new List<InterestedIn>();
-
+    public IList<Game> Games { get; set; } = new List<Game>();
     public IList<Game> ResponsibleOf {get; set;} = new List<Game>();
 }

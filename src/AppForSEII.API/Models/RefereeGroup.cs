@@ -15,4 +15,6 @@ public class RefereeGroup
     public string Rules { get; set; } = "Rules for the game";
 
     public int GameId { get; set; }
+    public IList<RefereeAssignedTo> RefereeAssignments { get; set; } = new List<RefereeAssignedTo>();
+    
 }
