@@ -24,12 +24,6 @@ public class GameInvitation
     [Required]
     public bool AcceptedGame { get; set; } = false;
 
-    [Required]
-    [Required]
-    public int GameId { get; set; }
-
-    public bool AcceptedGame { get; set; } = false;
-
     [MinLength(10)]
     public string Message { get; set; } = "Message more than 10 chars";
 
