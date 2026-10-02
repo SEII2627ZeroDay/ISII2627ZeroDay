@@ -1,0 +1,7 @@
+@startuml
+enum Gender {
+    Female,
+    Male,
+    Other,
+}
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+class ApplicationUser {
+    + ApplicationUser()
+    + ApplicationUser(id:string, name:string, surname:string, userName:string)
+    + ApplicationUser(id:string, name:string, surname:string, userName:string, birthDate:DateOnly, age:int, gender:Gender)
+    + Name : string? <<get>> <<set>>
+    + Surname : string? <<get>> <<set>>
+    + Age : int <<get>> <<set>>
+}
+class "IList`1"<T> {
+}
+IdentityUser <|-- ApplicationUser
+ApplicationUser --> "BirthDate" DateOnly
+ApplicationUser --> "Gender" Gender
+ApplicationUser o-> "CaptainOf<Team>" "IList`1"
+ApplicationUser o-> "TeamInvitations<TeamInvitation>" "IList`1"
+ApplicationUser o-> "Interested<InterestedIn>" "IList`1"
+@enduml
