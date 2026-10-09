@@ -7,6 +7,20 @@ namespace AppForSEII.API.Models;
 [PrimaryKey(nameof(UserId), nameof(TeamId))]
 public class TeamInvitation
 {
+    public TeamInvitation()
+    {
+    }
+
+    public TeamInvitation(ApplicationUser user, Team team, string invitationMessage, bool invitationAccepted = false)
+    {
+        User = user;
+        UserId = user?.Id ?? "0";
+        Team = team;
+        TeamId = team?.Id ?? 0;
+        InvitationMessage = invitationMessage;
+        InvitationAccepted = invitationAccepted;
+    }
+
     [Required]
     public string UserId { get; set; } = "0";
 

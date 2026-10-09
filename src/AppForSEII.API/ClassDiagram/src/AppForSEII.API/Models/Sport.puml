@@ -1,5 +1,7 @@
 @startuml
 class Sport {
+    + Sport()
+    + Sport(name:string, minimumNumberOfPlayers:int, numberofReferees:int, description:string, basicRules:string)
     + Id : int <<get>> <<set>>
     + Name : string <<get>> <<set>> = "Game"
     + MinimumNumberOfPlayers : int <<get>> <<set>> = 2

@@ -1,5 +1,7 @@
 @startuml
 class TeamInvitation {
+    + TeamInvitation()
+    + TeamInvitation(user:ApplicationUser, team:Team, invitationMessage:string, invitationAccepted:bool)
     + UserId : string <<get>> <<set>> = "0"
     + TeamId : int <<get>> <<set>>
     + InvitationAccepted : bool <<get>> <<set>> = false

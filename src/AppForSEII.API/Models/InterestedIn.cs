@@ -7,6 +7,19 @@ namespace AppForSEII.API.Models;
 [PrimaryKey(nameof(SportId), nameof(UserId))]
 public class InterestedIn
 {
+    public InterestedIn()
+    {
+    }
+
+    public InterestedIn(Sport sport, ApplicationUser userInterested, int skill)
+    {
+        Sport = sport;
+        SportId = sport?.Id ?? 0;
+        UserInterested = userInterested;
+        UserId = userInterested?.Id ?? "0";
+        Skill = skill;
+    }
+
     [Required]
     public int SportId { get; set; }
 

@@ -7,6 +7,23 @@ namespace AppForSEII.API.Models;
 [Index(nameof(Name), IsUnique = true)]
 public class Team
 {
+    public Team()
+    {
+    }
+
+    public Team(string name, string? description, int maxMembers, int minAge, int maxAge, ApplicationUser captain, Sport sport)
+    {
+        Name = name;
+        Description = description;
+        MaxMembers = maxMembers;
+        MinAge = minAge;
+        MaxAge = maxAge;
+        Captain = captain;
+        CaptainId = captain?.Id ?? "";
+        Sport = sport;
+        SportId = sport?.Id ?? 0;
+    }
+
     [Key]
     public int Id { get; set; }
 

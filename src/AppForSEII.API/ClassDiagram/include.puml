@@ -3,6 +3,8 @@ class ApplicationUser {
     + ApplicationUser()
     + ApplicationUser(id:string, name:string, surname:string, userName:string)
     + ApplicationUser(id:string, name:string, surname:string, userName:string, birthDate:DateOnly, age:int, gender:Gender)
+    + ApplicationUser(id:string, name:string, surname:string, userName:string, birthDate:DateOnly, age:int, gender:Gender, interested:IList<InterestedIn>)
+    + ApplicationUser(id:string, name:string, surname:string, userName:string, birthDate:DateOnly, age:int, gender:Gender, interestedIn:InterestedIn)
     + Name : string? <<get>> <<set>>
     + Surname : string? <<get>> <<set>>
     + Age : int <<get>> <<set>>
@@ -45,6 +47,8 @@ enum Gender {
     Other,
 }
 class InterestedIn {
+    + InterestedIn()
+    + InterestedIn(sport:Sport, userInterested:ApplicationUser, skill:int)
     + SportId : int <<get>> <<set>>
     + UserId : string <<get>> <<set>> = "0"
     + Skill : int <<get>> <<set>> = 5
@@ -83,6 +87,8 @@ class "IList`1"<T> {
 RefereeGroup o-> "Game" Game
 RefereeGroup o-> "RefereeAssignedTos<RefereeAssignedTo>" "IList`1"
 class Sport {
+    + Sport()
+    + Sport(name:string, minimumNumberOfPlayers:int, numberofReferees:int, description:string, basicRules:string)
     + Id : int <<get>> <<set>>
     + Name : string <<get>> <<set>> = "Game"
     + MinimumNumberOfPlayers : int <<get>> <<set>> = 2
@@ -97,6 +103,8 @@ Sport o-> "Interested<InterestedIn>" "IList`1"
 Sport o-> "Games<Game>" "IList`1"
 Sport o-> "Referees<Referee>" "IList`1"
 class Team {
+    + Team()
+    + Team(name:string, description:string?, maxMembers:int, minAge:int, maxAge:int, captain:ApplicationUser, sport:Sport)
     + Id : int <<get>> <<set>>
     + Name : string <<get>> <<set>> = "Team name"
     + Description : string? <<get>> <<set>> = "Team name"
@@ -113,6 +121,8 @@ Team o-> "Sport" Sport
 Team o-> "TeamInvitations<TeamInvitation>" "IList`1"
 Team o-> "GameInvitations<GameInvitation>" "IList`1"
 class TeamInvitation {
+    + TeamInvitation()
+    + TeamInvitation(user:ApplicationUser, team:Team, invitationMessage:string, invitationAccepted:bool)
     + UserId : string <<get>> <<set>> = "0"
     + TeamId : int <<get>> <<set>>
     + InvitationAccepted : bool <<get>> <<set>> = false

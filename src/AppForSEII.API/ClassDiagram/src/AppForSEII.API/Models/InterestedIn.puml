@@ -1,5 +1,7 @@
 @startuml
 class InterestedIn {
+    + InterestedIn()
+    + InterestedIn(sport:Sport, userInterested:ApplicationUser, skill:int)
     + SportId : int <<get>> <<set>>
     + UserId : string <<get>> <<set>> = "0"
     + Skill : int <<get>> <<set>> = 5
