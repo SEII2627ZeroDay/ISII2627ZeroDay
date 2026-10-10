@@ -3,6 +3,8 @@ class ApplicationUser {
     + ApplicationUser()
     + ApplicationUser(id:string, name:string, surname:string, userName:string)
     + ApplicationUser(id:string, name:string, surname:string, userName:string, birthDate:DateOnly, age:int, gender:Gender)
+    + ApplicationUser(id:string, name:string, surname:string, userName:string, birthDate:DateOnly, age:int, gender:Gender, interested:IList<InterestedIn>)
+    + ApplicationUser(id:string, name:string, surname:string, userName:string, birthDate:DateOnly, age:int, gender:Gender, interestedIn:InterestedIn)
     + Name : string? <<get>> <<set>>
     + Surname : string? <<get>> <<set>>
     + Age : int <<get>> <<set>>

@@ -1,5 +1,7 @@
 @startuml
 class Team {
+    + Team()
+    + Team(name:string, description:string?, maxMembers:int, minAge:int, maxAge:int, captain:ApplicationUser, sport:Sport)
     + Id : int <<get>> <<set>>
     + Name : string <<get>> <<set>> = "Team name"
     + Description : string? <<get>> <<set>> = "Team name"

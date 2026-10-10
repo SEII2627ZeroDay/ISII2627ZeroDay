@@ -33,7 +33,7 @@ public class SeedData
         try
         {
             SeedSports(dbContext);
-            SeedTeamsAndInvitations(dbContext);
+            SeedTeams(dbContext);
             SeedInterests(dbContext);
             SeedReferees(dbContext);
             SeedGamesAndInvitations(dbContext);
@@ -196,38 +196,10 @@ public class SeedData
         {
             var sports = new List<Sport>
             {
-                new Sport
-                {
-                    Name = "Football",
-                    MinimumNumberOfPlayers = 11,
-                    NumberofReferees = 3,
-                    Description = "11 vs 11 association football",
-                    BasicRules = "Rules for the game"
-                },
-                new Sport
-                {
-                    Name = "Basketball",
-                    MinimumNumberOfPlayers = 5,
-                    NumberofReferees = 2,
-                    Description = "5 vs 5 basketball on standard court",
-                    BasicRules = "Rules for the game"
-                },
-                new Sport
-                {
-                    Name = "Tennis",
-                    MinimumNumberOfPlayers = 2,
-                    NumberofReferees = 1,
-                    Description = "Singles or doubles tennis match",
-                    BasicRules = "Rules for the game"
-                },
-                new Sport
-                {
-                    Name = "Padel",
-                    MinimumNumberOfPlayers = 4,
-                    NumberofReferees = 1,
-                    Description = "Doubles padel tournament match",
-                    BasicRules = "Rules for the game"
-                }
+                new Sport("Football", 11, 3, "11 vs 11 association football", "Rules for the game"),
+                new Sport("Basketball", 5, 2, "5 vs 5 basketball on standard court", "Rules for the game"),
+                new Sport("Tennis", 2, 1, "Singles or doubles tennis match", "Rules for the game"),
+                new Sport("Padel", 4, 1, "Doubles padel tournament match", "Rules for the game")
             };
 
             dbContext.Sports.AddRange(sports);
@@ -365,77 +337,28 @@ public class SeedData
         }
     }
 
-    public static void SeedTeamsAndInvitations(ApplicationDbContext dbContext)
+    public static void SeedTeams(ApplicationDbContext dbContext)
     {
         if (!dbContext.Teams.Any())
         {
             var football = dbContext.Sports.FirstOrDefault(s => s.Name == "Football");
             var basketball = dbContext.Sports.FirstOrDefault(s => s.Name == "Basketball");
+            var peter = dbContext.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es");
+            var elena = dbContext.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es");
 
             var teams = new List<Team>();
 
-            if (football != null)
+            if (football != null && peter != null)
             {
-                teams.Add(new Team
-                {
-                    Name = "Eagles",
-                    Description = "University football team",
-                    MaxMembers = 15,
-                    MinAge = 18,
-                    MaxAge = 35,
-                    CaptainId = "3", // Peter
-                    SportId = football.Id
-                });
+                teams.Add(new Team("Eagles", "University football team", 15, 18, 35, peter, football));
             }
 
-            if (basketball != null)
+            if (basketball != null && elena != null)
             {
-                teams.Add(new Team
-                {
-                    Name = "Titans",
-                    Description = "Basketball squad",
-                    MaxMembers = 10,
-                    MinAge = 18,
-                    MaxAge = 30,
-                    CaptainId = "1", // Elena
-                    SportId = basketball.Id
-                });
+                teams.Add(new Team("Titans", "Basketball squad", 10, 18, 30, elena, basketball));
             }
 
             dbContext.Teams.AddRange(teams);
-            dbContext.SaveChanges();
-        }
-
-        if (!dbContext.TeamInvitations.Any())
-        {
-            var eagles = dbContext.Teams.FirstOrDefault(t => t.Name == "Eagles");
-            var titans = dbContext.Teams.FirstOrDefault(t => t.Name == "Titans");
-
-            var invitations = new List<TeamInvitation>();
-
-            if (eagles != null)
-            {
-                invitations.Add(new TeamInvitation
-                {
-                    UserId = "4", // Lucas
-                    TeamId = eagles.Id,
-                    InvitationAccepted = false,
-                    InvitationMessage = "Join our football team for the upcoming championship!"
-                });
-            }
-
-            if (titans != null)
-            {
-                invitations.Add(new TeamInvitation
-                {
-                    UserId = "5", // Sofia
-                    TeamId = titans.Id,
-                    InvitationAccepted = true,
-                    InvitationMessage = "We would love to have you on the basketball team!"
-                });
-            }
-
-            dbContext.TeamInvitations.AddRange(invitations);
             dbContext.SaveChanges();
         }
     }
@@ -448,23 +371,28 @@ public class SeedData
             var basketball = dbContext.Sports.FirstOrDefault(s => s.Name == "Basketball");
             var tennis = dbContext.Sports.FirstOrDefault(s => s.Name == "Tennis");
 
+            var peter = dbContext.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es");
+            var lucas = dbContext.Users.FirstOrDefault(u => u.UserName == "lucas@uclm.es");
+            var elena = dbContext.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es");
+            var sofia = dbContext.Users.FirstOrDefault(u => u.UserName == "sofia@uclm.es");
+
             var interests = new List<InterestedIn>();
 
             if (football != null)
             {
-                interests.Add(new InterestedIn { SportId = football.Id, UserId = "3", Skill = 4 }); // Peter
-                interests.Add(new InterestedIn { SportId = football.Id, UserId = "4", Skill = 5 }); // Lucas
+                if (peter != null) interests.Add(new InterestedIn(football, peter, 4));
+                if (lucas != null) interests.Add(new InterestedIn(football, lucas, 5));
             }
 
             if (basketball != null)
             {
-                interests.Add(new InterestedIn { SportId = basketball.Id, UserId = "3", Skill = 3 }); // Peter
-                interests.Add(new InterestedIn { SportId = basketball.Id, UserId = "1", Skill = 4 }); // Elena
+                if (peter != null) interests.Add(new InterestedIn(basketball, peter, 3));
+                if (elena != null) interests.Add(new InterestedIn(basketball, elena, 4));
             }
 
-            if (tennis != null)
+            if (tennis != null && sofia != null)
             {
-                interests.Add(new InterestedIn { SportId = tennis.Id, UserId = "5", Skill = 4 }); // Sofia
+                interests.Add(new InterestedIn(tennis, sofia, 4));
             }
 
             dbContext.InterestedIns.AddRange(interests);

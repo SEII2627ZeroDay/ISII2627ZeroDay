@@ -6,6 +6,19 @@ namespace AppForSEII.API.Models;
 [Index(nameof(Name), IsUnique = true)]
 public class Sport
 {
+    public Sport()
+    {
+    }
+
+    public Sport(string name, int minimumNumberOfPlayers, int numberofReferees, string description, string basicRules)
+    {
+        Name = name;
+        MinimumNumberOfPlayers = minimumNumberOfPlayers;
+        NumberofReferees = numberofReferees;
+        Description = description;
+        BasicRules = basicRules;
+    }
+
     [Key]
     public int Id { get; set; }
 

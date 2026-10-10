@@ -25,6 +25,21 @@ public class ApplicationUser : IdentityUser
         Gender = gender;
     }
 
+    public ApplicationUser(string id, string name, string surname, string userName, DateOnly birthDate, int age, Gender gender, IList<InterestedIn> interested)
+        : this(id, name, surname, userName, birthDate, age, gender)
+    {
+        Interested = interested ?? new List<InterestedIn>();
+    }
+
+    public ApplicationUser(string id, string name, string surname, string userName, DateOnly birthDate, int age, Gender gender, InterestedIn interestedIn)
+        : this(id, name, surname, userName, birthDate, age, gender)
+    {
+        if (interestedIn != null)
+        {
+            Interested.Add(interestedIn);
+        }
+    }
+
     [StringLength(50)]
     public string? Name { get; set; }
 
