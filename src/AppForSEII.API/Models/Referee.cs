@@ -8,8 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 public class Referee
 {
-    [Key]
-    public string Id { get; set; } = "0";
+    public Referee(int rating, int yearsRefereeing, int sportId)
+    {
+        Rating = rating;
+        YearsRefereeing = yearsRefereeing;
+        SportId = sportId;
+    }
 
     [Range(0, 5)]
     public int Rating { get; set; }
@@ -22,10 +26,5 @@ public class Referee
     [ForeignKey(nameof(SportId))]
     [DeleteBehavior(DeleteBehavior.NoAction)]
     public Sport SportForReferee { get; set; } = null!;
-
-    [ForeignKey(nameof(Id))]
-    [DeleteBehavior(DeleteBehavior.NoAction)]
-    public ApplicationUser User { get; set; } = null!;
-
     public IList<RefereeAssignedTo> RefereeAssignedTos { get; set; } = new List<RefereeAssignedTo>();
 }
