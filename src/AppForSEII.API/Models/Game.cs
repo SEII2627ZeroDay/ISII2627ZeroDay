@@ -9,6 +9,24 @@ namespace AppForSEII.API.Models;
 
 public class Game
 {
+
+    public Game()
+    {
+        
+    }
+
+    public Game(string name, DateTime date, string place, string? description, Sport sport, ApplicationUser responsibleFor)
+    {
+        Name = name;
+        Date = date;
+        Place = place;
+        Description = description;
+        Sport = sport;
+        SportId = sport?.Id ?? 0;
+        ResponsibleFor = responsibleFor;
+        ResponsibleForId = responsibleFor?.Id ?? "";
+    }
+
     //id
     //NUMERIC PRIMARY KEY
     [Key]
