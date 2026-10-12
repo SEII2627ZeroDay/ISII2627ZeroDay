@@ -216,8 +216,8 @@ public class SeedData
             {
                 var referees = new List<Referee>
                 {
-                    new Referee { Id = "6", Rating = 5, YearsRefereeing = 8, SportId = football.Id },
-                    new Referee { Id = "7", Rating = 4, YearsRefereeing = 4, SportId = football.Id }
+                    new Referee(rating: 5, yearsRefereeing: 8, sportId: football.Id),
+                    new Referee(rating: 4, yearsRefereeing: 4, sportId: football.Id)
                 };
 
                 dbContext.Referee.AddRange(referees);
@@ -399,4 +399,4 @@ public class SeedData
             dbContext.SaveChanges();
         }
     }
-}
+}

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-public class Referee
+public class Referee : ApplicationUser
 {
     public Referee(int rating, int yearsRefereeing, int sportId)
     {
