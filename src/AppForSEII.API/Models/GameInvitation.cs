@@ -7,6 +7,22 @@ namespace AppForSEII.API.Models;
 [PrimaryKey(nameof(TeamId), nameof(GameId))]
 public class GameInvitation
 {
+
+    public GameInvitation()
+    {
+        
+    }
+
+    public GameInvitation(Team team, Game game, bool acceptedGame, string message)
+    {
+        Team = team;
+        TeamId = team?.Id ?? 0;
+        Game = game;
+        GameId = game?.Id ?? 0;
+        AcceptedGame = acceptedGame;
+        Message = message;
+    }
+
     [Required]
     public int TeamId { get; set; }
 
