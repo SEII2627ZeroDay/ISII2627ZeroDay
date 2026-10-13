@@ -233,6 +233,9 @@ public class SeedData
             var football = dbContext.Sports.FirstOrDefault(s => s.Name == "Football");
             var basketball = dbContext.Sports.FirstOrDefault(s => s.Name == "Basketball");
 
+            var elena = dbContext.Users.FirstOrDefault(u => u.Email == "elena@uclm.es");
+            var peter = dbContext.Users.FirstOrDefault(u => u.Email == "peter@uclm.es");
+
             var games = new List<Game>();
 
             if (football != null)
@@ -269,6 +272,8 @@ public class SeedData
         {
             var eagles = dbContext.Teams.FirstOrDefault(t => t.Name == "Eagles");
             var finalCup = dbContext.Games.FirstOrDefault(g => g.Name == "Final Cup 2026");
+            var titans = dbContext.Teams.FirstOrDefault(t => t.Name == "Titans");
+            var springDerby = dbContext.Games.FirstOrDefault(g => g.Name == "Spring Derby");
 
             if (eagles != null && finalCup != null)
             {
@@ -278,6 +283,20 @@ public class SeedData
                     GameId = finalCup.Id,
                     AcceptedGame = true,
                     Message = "Invitation to participate in the Final Cup 2026 match."
+                };
+
+                dbContext.GameInvitations.Add(invitation);
+                dbContext.SaveChanges();
+            }
+
+            if (titans != null && springDerby != null)
+            {
+                var invitation = new GameInvitation
+                {
+                    TeamId = titans.Id,
+                    GameId = springDerby.Id,
+                    AcceptedGame = true,
+                    Message = "Invitation to participate in the Spring Derby match."
                 };
 
                 dbContext.GameInvitations.Add(invitation);
