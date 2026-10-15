@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AppForSEII.API.DTOs.ApplicationUserDTO;
 using AppForSEII.API.Data;
+using AppForSEII.API.DTOs.TeamDTOs;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace AppForSEII.API.Controllers
 {
@@ -41,5 +43,21 @@ namespace AppForSEII.API.Controllers
             decimal result = decimal.Round(op1 / op2, 2);
             return Ok(result);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(IList<Team>), (int)HttpStatusCode.OK)]
+
+        public async Task<ActionResult> GetTeamsForGame(string? name)
+        {
+            IList<TeamForGameDTO> teams = await _context.Teams
+                                        .Include(t=>t.Sport)
+                                        .Where(t=>name.Equals(name) || (name==null))
+                                        .OrderBy(t=>t.Name)
+                                        .Select(t=>new TeamForGameDTO(t.Id, t.Name, t.MaxMembers, t.MinAge, t.MaxAge, t.Sport.Name))
+                                        .ToListAsync();
+            return Ok(teams);
+        }
+
     }
 }
