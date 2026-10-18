@@ -48,7 +48,7 @@ namespace AppForSEII.API.Controllers
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<Team>), (int)HttpStatusCode.OK)]
 
-        public async Task<ActionResult> GetTeamsForGame(string? name)
+        public async Task<ActionResult> GetTeamsForGame(string? name, string? skill) //VER DIAPOSITIVAS NUEVAS DEL CAMPUS PARA VER TU EQUIVALENTE EN GAME CREATETEAM
         {
             IList<TeamForGameDTO> teams = await _context.Teams
                                         .Include(t=>t.Sport)
