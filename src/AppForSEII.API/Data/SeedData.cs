@@ -216,8 +216,8 @@ public class SeedData
             {
                 var referees = new List<Referee>
                 {
-                    new Referee { Id = "6", Rating = 5, YearsRefereeing = 8, SportId = football.Id },
-                    new Referee { Id = "7", Rating = 4, YearsRefereeing = 4, SportId = football.Id }
+                    new Referee(rating: 5, yearsRefereeing: 8, sportId: football.Id),
+                    new Referee(rating: 4, yearsRefereeing: 4, sportId: football.Id)
                 };
 
                 dbContext.Referee.AddRange(referees);
@@ -362,8 +362,8 @@ public class SeedData
         {
             var football = dbContext.Sports.FirstOrDefault(s => s.Name == "Football");
             var basketball = dbContext.Sports.FirstOrDefault(s => s.Name == "Basketball");
-            var peter = dbContext.Users.FirstOrDefault(u => u.Email == "peter@uclm.es");
-            var elena = dbContext.Users.FirstOrDefault(u => u.Email == "elena@uclm.es");
+            var peter = dbContext.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es");
+            var elena = dbContext.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es");
 
             var teams = new List<Team>();
 
