@@ -207,7 +207,7 @@ public class SeedData
         }
     }
 
-    public static void SeedReferees(ApplicationDbContext dbContext)
+        public static void SeedReferees(ApplicationDbContext dbContext)
     {
         if (!dbContext.Referee.Any())
         {
