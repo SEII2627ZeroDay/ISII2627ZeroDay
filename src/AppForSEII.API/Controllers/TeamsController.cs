@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AppForSEII.API.Data;
 using AppForSEII.API.DTOs.TeamDTOs;
+using AppForSEII.API.Models;
 
 namespace AppForSEII.API.Controllers
 {
@@ -76,6 +77,176 @@ namespace AppForSEII.API.Controllers
             }
 
             return Ok(team);
+        }
+
+        // POST: api/Teams/CreateTeam
+        [HttpPost]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(TeamDetailDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> CreateTeam([FromBody] TeamForCreateDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for CreateTeam.");
+                return BadRequest(ModelState);
+            }
+
+            if (dto.MinAge > dto.MaxAge)
+            {
+                _logger.LogError("MinAge cannot be greater than MaxAge.");
+                return BadRequest("Minimum age cannot be greater than maximum age.");
+            }
+
+            // Alternative flow 5: Team's name is already chosen
+            var nameExists = await _context.Teams.AnyAsync(t => t.Name == dto.Name);
+            if (nameExists)
+            {
+                _logger.LogError($"Team name '{dto.Name}' already exists.");
+                return Conflict($"Team name '{dto.Name}' already exists.");
+            }
+
+            // Sport existence
+            var sport = await _context.Sports.FirstOrDefaultAsync(s => s.Name == dto.Sport || s.Id.ToString() == dto.Sport);
+            if (sport == null)
+            {
+                _logger.LogError($"Sport '{dto.Sport}' not found.");
+                return NotFound($"Sport '{dto.Sport}' was not found.");
+            }
+
+            // Captain existence
+            var captain = await _context.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == dto.CaptainId || u.UserName == dto.CaptainId || u.Email == dto.CaptainId);
+            if (captain == null)
+            {
+                _logger.LogError($"Captain '{dto.CaptainId}' not found.");
+                return NotFound($"Captain '{dto.CaptainId}' was not found.");
+            }
+
+            // Captain age check
+            if (captain.Age < dto.MinAge || captain.Age > dto.MaxAge)
+            {
+                _logger.LogError($"Captain age ({captain.Age}) is outside the team age range ({dto.MinAge}-{dto.MaxAge}).");
+                return BadRequest($"Captain's age ({captain.Age}) is outside the team age range ({dto.MinAge}-{dto.MaxAge}).");
+            }
+
+            int totalMembers = 1 + (dto.InvitedPlayers?.Count ?? 0);
+
+            // Alternative flow 4: Number of players invited is too small for the sport selected
+            if (totalMembers < sport.MinimumNumberOfPlayers)
+            {
+                _logger.LogError($"Total team members ({totalMembers}) is less than minimum required ({sport.MinimumNumberOfPlayers}) for {sport.Name}.");
+                return BadRequest($"The number of players ({totalMembers}) is too small for {sport.Name}, which requires at least {sport.MinimumNumberOfPlayers} players.");
+            }
+
+            // Max members constraint
+            if (totalMembers > dto.MaxMembers)
+            {
+                _logger.LogError($"Total members ({totalMembers}) exceeds MaxMembers ({dto.MaxMembers}).");
+                return BadRequest($"Total team members ({totalMembers}) exceeds maximum allowed members ({dto.MaxMembers}).");
+            }
+
+            // Check invitations
+            var invitedUsers = new List<ApplicationUser>();
+            if (dto.InvitedPlayers != null && dto.InvitedPlayers.Count > 0)
+            {
+                var invitedUserIds = dto.InvitedPlayers.Select(p => p.UserId).ToList();
+
+                // Check for duplicates in invitations
+                if (invitedUserIds.Distinct().Count() != invitedUserIds.Count)
+                {
+                    _logger.LogError("Duplicate users found in invited players list.");
+                    return BadRequest("Duplicate invited players in the team.");
+                }
+
+                // Captain cannot invite themselves
+                if (invitedUserIds.Any(id => id == captain.Id || id == captain.UserName || id == captain.Email))
+                {
+                    _logger.LogError("Captain cannot be invited as a teammate.");
+                    return BadRequest("Captain cannot be invited as a teammate.");
+                }
+
+                invitedUsers = await _context.ApplicationUsers
+                    .Where(u => invitedUserIds.Contains(u.Id) || invitedUserIds.Contains(u.UserName!) || invitedUserIds.Contains(u.Email!))
+                    .ToListAsync();
+
+                if (invitedUsers.Count != invitedUserIds.Count)
+                {
+                    _logger.LogError("One or more invited users not found in database.");
+                    return NotFound("One or more invited users do not exist.");
+                }
+
+                foreach (var user in invitedUsers)
+                {
+                    if (user.Age < dto.MinAge || user.Age > dto.MaxAge)
+                    {
+                        _logger.LogError($"Invited player '{user.Name} {user.Surname}' age ({user.Age}) does not meet the age criteria ({dto.MinAge}-{dto.MaxAge}).");
+                        return BadRequest($"Invited player '{user.Name} {user.Surname}' (age {user.Age}) does not meet the age criteria ({dto.MinAge}-{dto.MaxAge}).");
+                    }
+                }
+            }
+
+            // Create team entity
+            var team = new Team(
+                dto.Name,
+                dto.Description,
+                dto.MaxMembers,
+                dto.MinAge,
+                dto.MaxAge,
+                captain,
+                sport
+            );
+
+            _context.Teams.Add(team);
+
+            // Create team invitations (marked as pending: InvitationAccepted = false)
+            if (dto.InvitedPlayers != null)
+            {
+                foreach (var invitationDto in dto.InvitedPlayers)
+                {
+                    var user = invitedUsers.First(u => u.Id == invitationDto.UserId || u.UserName == invitationDto.UserId || u.Email == invitationDto.UserId);
+                    var invitation = new TeamInvitation(
+                        user,
+                        team,
+                        invitationDto.InvitationMessage,
+                        invitationAccepted: false
+                    );
+                    _context.TeamInvitations.Add(invitation);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Build TeamDetailDTO for response
+            var invitedPlayerDTOs = (dto.InvitedPlayers ?? new List<TeamInvitationDTO>()).Select(i =>
+            {
+                var u = invitedUsers.First(user => user.Id == i.UserId || user.UserName == i.UserId || user.Email == i.UserId);
+                return new TeamPlayerDTO(
+                    u.Name ?? "",
+                    u.Surname ?? "",
+                    u.Age,
+                    i.InvitationMessage,
+                    false
+                );
+            }).ToList();
+
+            var result = new TeamDetailDTO(
+                team.Id,
+                team.Name,
+                team.Description,
+                team.MaxMembers,
+                team.MinAge,
+                team.MaxAge,
+                sport.Name,
+                captain.Name ?? "",
+                captain.Surname ?? "",
+                captain.Age,
+                invitedPlayerDTOs
+            );
+
+            return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, result);
         }
     }
 }
