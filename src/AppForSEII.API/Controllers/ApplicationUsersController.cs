@@ -25,7 +25,7 @@ namespace AppForSEII.API.Controllers
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(IList<ApplicationUserForTeamDTO>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult> GetUsersForTeam(string? sport, int? skill)
+        public async Task<ActionResult> GetUsersForTeam(string? sport, int? skill) // must have only two filters
         {
             var users = await _context.ApplicationUsers
                 .Include(u => u.Interested)
