@@ -131,7 +131,7 @@ namespace AppForSEII.API.Controllers
                 _logger.LogError($"Captain age ({captain.Age}) is outside the team age range ({dto.MinAge}-{dto.MaxAge}).");
                 return BadRequest($"Captain's age ({captain.Age}) is outside the team age range ({dto.MinAge}-{dto.MaxAge}).");
             }
-
+            // Calculates the total number of members: 1 for the current player plus the number of invited players (0 if the list is null).
             int totalMembers = 1 + (dto.InvitedPlayers?.Count ?? 0);
 
             // Alternative flow 4: Number of players invited is too small for the sport selected
