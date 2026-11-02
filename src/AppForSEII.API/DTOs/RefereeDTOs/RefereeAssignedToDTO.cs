@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace AppForSEII.API.DTOs.RefereeDTOs
 {
     public class RefereeAssignedToDTO
@@ -25,5 +27,20 @@ namespace AppForSEII.API.DTOs.RefereeDTOs
         [Required]
         [StringLength(255, MinimumLength = 3, ErrorMessage = "Between 3 and 255 chars")]
         public string RoleDescription { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is RefereeAssignedToDTO other &&
+                   RefereeGroupId == other.RefereeGroupId &&
+                   RefereeId == other.RefereeId &&
+                   AcceptedAssignement == other.AcceptedAssignement &&
+                   Role == other.Role &&
+                   RoleDescription == other.RoleDescription;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(RefereeGroupId, RefereeId, AcceptedAssignement, Role, RoleDescription);
+        }
     }
 }
