@@ -37,6 +37,7 @@ namespace AppForSEII.API.Controllers
 
             var assignments = await _context.RefereeAssignedTo
                 .Where(a => a.RefereeGroupId == id)
+                .OrderBy(a => a.RefereeId)
                 .Select(a => new RefereeAssignedToDTO(a.RefereeGroupId, a.RefereeId, a.AcceptedAssignement, a.Role, a.RoleDescription))
                 .ToListAsync();
 
