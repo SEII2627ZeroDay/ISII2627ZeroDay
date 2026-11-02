@@ -24,8 +24,10 @@ namespace AppForSEII.API.DTOs.RefereeDTOs
 
         public string? Rules { get; set; }
 
+        [Range(1, int.MaxValue)]
         public int GameId { get; set; }
 
+        [Required]
         public List<RefereeAssignedToDTO> RefereeAssignedTos { get; set; }
 
         public override bool Equals(object? obj)
