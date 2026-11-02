@@ -362,8 +362,8 @@ public class SeedData
         {
             var football = dbContext.Sports.FirstOrDefault(s => s.Name == "Football");
             var basketball = dbContext.Sports.FirstOrDefault(s => s.Name == "Basketball");
-            var peter = dbContext.Users.FirstOrDefault(u => u.Email == "peter@uclm.es");
-            var elena = dbContext.Users.FirstOrDefault(u => u.Email == "elena@uclm.es");
+            var peter = dbContext.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es");
+            var elena = dbContext.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es");
 
             var teams = new List<Team>();
 
