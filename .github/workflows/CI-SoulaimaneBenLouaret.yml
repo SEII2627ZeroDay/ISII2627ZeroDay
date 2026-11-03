@@ -5,7 +5,7 @@ name: Soulaimane Ben Louaret - Continuous Integration Pipeline
 
 on:
   push:
-    branches: [ "CI-SoulaimaneBenLouaret-doesnt exist" ]
+    branches: [ "CI-SoulaimaneBenLouaret" ]
   pull_request:
     branches: [ "CI-SoulaimaneBenLouaret" ]
 
