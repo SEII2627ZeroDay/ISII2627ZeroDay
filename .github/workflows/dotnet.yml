@@ -1,0 +1,53 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Antonio Perez Continous Integration Pipeline
+
+on:
+  push:
+    branches: [ "CI-AntonioPerez" ]
+  pull_request:
+    branches: [ "CI-AntonioPerez" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      API: ./src/AppForSEII.API/AppForSEII.API.csproj
+      WEB: ./src/AppForSEII.API/AppForSEII.Web.csproj
+      UT: ./test/AppForSEII.API/AppForSEII.UT.csproj
+      UIT: ./test/AppForSEII.API/AppForSEII.UIT.csproj
+    
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    - name: Info
+      run: dotnet --info
+    - name: Restore dependencies
+      run: |
+          dotnet restore ${{ env.API }}
+          dotnet restore ${{ env.WEB }}
+          dotnet restore ${{ env.UT }}
+          dotnet restore ${{ env.UIT }}
+
+    - name: Build the solution
+      run: |
+        dotnet build ${{ env.API }}  --configuration Release --no-restore
+        dotnet build ${{ env.WEB }}  --configuration Release --no-restore
+        dotnet build ${{ env.UT }}  --configuration Release --no-restore
+        dotnet build ${{ env.UIT }}  --configuration Release --no-restore
+
+    - name: Run unit tests with report
+      run: dotnet test ${{ env.UT }} --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+          name: TestResults
+          path: ./test/AppForSEII2526.UT/TestResults/TestResults.trx
