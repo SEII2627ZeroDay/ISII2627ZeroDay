@@ -73,7 +73,7 @@ namespace AppForSEII.UT.ApplicationUsersController_test
         }
 
         [Fact]
-        public async Task GetUsersForTeam_NullFilters_ReturnsAllUsersOrderedBySurnameThenName()
+        public async Task GetUsersForTeam_NullFilters()
         {
             // Arrange
             var expectedUsers = new List<ApplicationUserForTeamDTO>
@@ -92,18 +92,14 @@ namespace AppForSEII.UT.ApplicationUsersController_test
             Assert.Equal(expectedUsers, actualUsers);
         }
 
-        [Fact]
-        public async Task GetUsersForTeam_FilterBySport_ReturnsFilteredUsers()
+        [Theory]
+        [MemberData(nameof(TestCaseFor_GetUsersForTeam))]
+        public async Task GetUsersForTeam_Filtering_test(string? filtersport, int? filterskill, List<ApplicationUserForTeamDTO> expectedUsers)
         {
             // Arrange
-            var expectedUsers = new List<ApplicationUserForTeamDTO>
-            {
-                new ApplicationUserForTeamDTO("2", "Lucas", "García López", 26, "Football", 5),
-                new ApplicationUserForTeamDTO("3", "Peter", "Jackson", 28, "Football", 4)
-            };
 
             // Act
-            var result = await _controller.GetUsersForTeam("Football", null);
+            var result = await _controller.GetUsersForTeam(filtersport, filterskill);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -111,54 +107,32 @@ namespace AppForSEII.UT.ApplicationUsersController_test
             Assert.Equal(expectedUsers, actualUsers);
         }
 
-        [Fact]
-        public async Task GetUsersForTeam_FilterBySkill_ReturnsFilteredUsers()
+        public static IEnumerable<object?[]> TestCaseFor_GetUsersForTeam()
         {
-            // Arrange
-            var expectedUsers = new List<ApplicationUserForTeamDTO>
+            List<ApplicationUserForTeamDTO> applicationUserDTOs = new List<ApplicationUserForTeamDTO>()
             {
+                new ApplicationUserForTeamDTO("2", "Lucas", "García López", 26, "Football", 5),
                 new ApplicationUserForTeamDTO("3", "Peter", "Jackson", 28, "Football", 4),
                 new ApplicationUserForTeamDTO("1", "Elena", "Navarro Martínez", 41, "Basketball", 4)
             };
 
-            // Act
-            var result = await _controller.GetUsersForTeam(null, 4);
+            var TC1WithOutFilters = new List<ApplicationUserForTeamDTO> { applicationUserDTOs[0], applicationUserDTOs[1], applicationUserDTOs[2] };
+            var TC2SportFilter = new List<ApplicationUserForTeamDTO> { applicationUserDTOs[0], applicationUserDTOs[1] };
+            var TC3SkillFilter = new List<ApplicationUserForTeamDTO> { applicationUserDTOs[1], applicationUserDTOs[2] };
+            var TC4SportAndSkillFilter = new List<ApplicationUserForTeamDTO> { applicationUserDTOs[0] };
+            var TC5NoMatching = new List<ApplicationUserForTeamDTO>();
 
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var actualUsers = Assert.IsType<List<ApplicationUserForTeamDTO>>(okResult.Value);
-            Assert.Equal(expectedUsers, actualUsers);
-        }
-
-        [Fact]
-        public async Task GetUsersForTeam_FilterBySportAndSkill_ReturnsMatchingUser()
-        {
-            // Arrange
-            var expectedUsers = new List<ApplicationUserForTeamDTO>
+            var allTests = new List<object?[]>
             {
-                new ApplicationUserForTeamDTO("2", "Lucas", "García López", 26, "Football", 5)
+                // filters to apply - expected applicationUsers
+                new object?[] { null, null, TC1WithOutFilters },
+                new object?[] { "Football", null, TC2SportFilter },
+                new object?[] { null, 4, TC3SkillFilter },
+                new object?[] { "Football", 5, TC4SportAndSkillFilter },
+                new object?[] { "Tennis", 1, TC5NoMatching }
             };
 
-            // Act
-            var result = await _controller.GetUsersForTeam("Football", 5);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var actualUsers = Assert.IsType<List<ApplicationUserForTeamDTO>>(okResult.Value);
-            Assert.Equal(expectedUsers, actualUsers);
-        }
-
-        [Fact]
-        public async Task GetUsersForTeam_NoMatchingUsers_ReturnsEmptyList()
-        {
-            // Arrange - sport not played by anyone with skill 1
-            // Act
-            var result = await _controller.GetUsersForTeam("Tennis", 1);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var actualUsers = Assert.IsType<List<ApplicationUserForTeamDTO>>(okResult.Value);
-            Assert.Empty(actualUsers);
+            return allTests;
         }
     }
 }
