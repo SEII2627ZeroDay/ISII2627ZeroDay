@@ -50,5 +50,5 @@ jobs:
     - name: Upload test results
       uses: actions/upload-artifact@v4
       with:
-          name: TestResults
-          path: ./test/AppForSEII2526.UT/TestResults/TestResults.trx
+        name: TestResults
+        path: ./test/AppForSEII2526.UT/TestResults/TestResults.trx
