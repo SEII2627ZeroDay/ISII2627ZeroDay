@@ -10,7 +10,7 @@ using AppForSEII.API.Data;
 
 namespace AppForSEII.API.Controllers
 {
-     class ApplicationUsersController : ControllerBase
+     public class ApplicationUsersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<ApplicationUsersController> _logger;
