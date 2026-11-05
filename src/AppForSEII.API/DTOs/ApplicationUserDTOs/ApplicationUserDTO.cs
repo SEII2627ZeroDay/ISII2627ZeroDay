@@ -17,6 +17,7 @@ public class ApplicationUserDTO
         Email = userName;
         PhoneNumber=phoneNumber;
     }
+    
 
     [StringLength(50)]
     public string? Id {get;set;}
