@@ -13,23 +13,46 @@ namespace AppForSEII.UT.TeamsController_test
     {
         public GetTeamsForGame_test()
         {
-            var football = _context.Sports.FirstOrDefault(s => s.Name == "Football");
-            var basketball = _context.Sports.FirstOrDefault(s => s.Name == "Basketball");
-            var peter = _context.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es");
-            var elena = _context.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es");
+            //Seed Sports (Usando el constructor exacto del proyecto)
+            var football = new Sport("Football", 11, 3, "11 vs 11 football", "Rules");
+            var basketball = new Sport("Basketball", 5, 2, "5 vs 5 basketball", "Rules");
+            _context.Sports.AddRange(football, basketball);
+            _context.SaveChanges();
 
-            var teams = new List<Team>();
-
-            if (football != null && peter != null)
+            //Seed Users (Usando el constructor exacto del proyecto)
+            var elena = new ApplicationUser(
+                "1",
+                "Elena",
+                "Navarro Martínez",
+                "elena@uclm.es",
+                new DateOnly(1985, 5, 20),
+                41,
+                Gender.Female)
             {
-                teams.Add(new Team("Eagles", "University football team", 15, 18, 35, peter, football));
-            }
+                EmailConfirmed = true
+            };
 
-            if (basketball != null && elena != null)
+            var peter = new ApplicationUser(
+                "3",
+                "Peter",
+                "Jackson",
+                "peter@uclm.es",
+                new DateOnly(1998, 8, 15),
+                28,
+                Gender.Male)
             {
-                teams.Add(new Team("Titans", "Basketball squad", 10, 18, 30, elena, basketball));
-            }
+                EmailConfirmed = true
+            };
 
+            _context.ApplicationUsers.AddRange(elena, peter);
+            _context.SaveChanges();
+
+            //seed teams
+            var teams = new List<Team>
+            {
+                new Team("Titans", "Basketball squad", 10, 18, 30, elena, basketball),
+                new Team("Eagles", "University football team", 15, 18, 35, peter, football)
+            };
             _context.Teams.AddRange(teams);
             _context.SaveChanges();
         }
