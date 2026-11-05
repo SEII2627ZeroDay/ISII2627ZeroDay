@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AppForSEII.API.Data;
 using AppForSEII.API.DTOs.TeamDTOs;
+using AppForSEII.API.DTOs.GameDTOs;
 using AppForSEII.API.Models;
 
 namespace AppForSEII.API.Controllers
