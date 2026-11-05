@@ -312,13 +312,7 @@ public class SeedData
             var firstGame = dbContext.Games.FirstOrDefault();
             if (firstGame != null)
             {
-                var refereeGroup = new RefereeGroup
-                {
-                    Name = "Main Ref Group",
-                    Description = "Lead referees for championship",
-                    Rules = "Rules for the game",
-                    GameId = firstGame.Id
-                };
+                var refereeGroup = new RefereeGroup("Main Ref Group", "Lead referees for championship", "Rules for the game", firstGame.Id);
 
                 dbContext.RefereeGroup.Add(refereeGroup);
                 dbContext.SaveChanges();
@@ -332,22 +326,8 @@ public class SeedData
             {
                 var assignments = new List<RefereeAssignedTo>
                 {
-                    new RefereeAssignedTo
-                    {
-                        RefereeGroupId = refGroup.Id,
-                        RefereeId = "6", // Carlos
-                        AcceptedAssignement = true,
-                        Role = "Head Referee",
-                        RoleDescription = "Chief referee supervising the game"
-                    },
-                    new RefereeAssignedTo
-                    {
-                        RefereeGroupId = refGroup.Id,
-                        RefereeId = "7", // Ana
-                        AcceptedAssignement = false,
-                        Role = "Assistant Referee",
-                        RoleDescription = "Assistant referee on the touchline"
-                    }
+                    new RefereeAssignedTo(refGroup.Id, "6", true, "Head Referee", "Chief referee supervising the game"),
+                    new RefereeAssignedTo(refGroup.Id, "7", false, "Assistant Referee", "Assistant referee on the touchline")
                 };
 
                 dbContext.RefereeAssignedTo.AddRange(assignments);

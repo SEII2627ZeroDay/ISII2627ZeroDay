@@ -1,5 +1,5 @@
-using System.Text.Json;
 using AppForSEII.API.Controllers;
+using AppForSEII.API.DTOs.RefereeDTOs;
 using AppForSEII.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,10 +10,6 @@ namespace AppForSEII.UT.RefereesController_test
 {
     public class GetRefereesForRefereeGroup_test : AppForSEII4SqliteUT
     {
-        // The action method returns anonymous objects, so the test converts them
-        // to this record (through JSON) to be able to compare them with Assert.Equal.
-        public record RefereeResult(string Id, string? Name, string? Surname, int YearsRefereeing, int Rating);
-
         public GetRefereesForRefereeGroup_test()
         {
             var football = new Sport("Football", 11, 3, "11 vs 11 association football", "Rules");
@@ -32,23 +28,17 @@ namespace AppForSEII.UT.RefereesController_test
             _context.SaveChanges();
         }
 
-        private static List<RefereeResult> ToRefereeResults(object? value)
-        {
-            string json = JsonSerializer.Serialize(value);
-            return JsonSerializer.Deserialize<List<RefereeResult>>(json)!.OrderBy(r => r.Id).ToList();
-        }
-
         public static IEnumerable<object?[]> TestCasesFor_GetRefereesForRefereeGroup()
         {
-            var refereeResults = new List<RefereeResult>()
+            var refereeDTOs = new List<RefereeForRefereeGroupDTO>()
             {
-                new RefereeResult("2", "Ana", "Torres", 3, 5),
-                new RefereeResult("3", "Luis", "Perez", 1, 4),
+                new RefereeForRefereeGroupDTO("2", "Ana", "Torres", 3, 5),
+                new RefereeForRefereeGroupDTO("3", "Luis", "Perez", 1, 4),
             };
 
-            var TC1WithoutFilter = new List<RefereeResult> { refereeResults[0], refereeResults[1] };
-            var TC2MinYears2 = new List<RefereeResult> { refereeResults[0] };
-            var TC3MinYears1 = new List<RefereeResult> { refereeResults[0], refereeResults[1] };
+            var TC1WithoutFilter = new List<RefereeForRefereeGroupDTO> { refereeDTOs[0], refereeDTOs[1] };
+            var TC2MinYears2 = new List<RefereeForRefereeGroupDTO> { refereeDTOs[0] };
+            var TC3MinYears1 = new List<RefereeForRefereeGroupDTO> { refereeDTOs[0], refereeDTOs[1] };
 
             var allTests = new List<object?[]>
             {
@@ -64,7 +54,7 @@ namespace AppForSEII.UT.RefereesController_test
         [Theory]
         [Trait("LevelTesting", "Unit Testing")]
         [MemberData(nameof(TestCasesFor_GetRefereesForRefereeGroup))]
-        public async Task GetRefereesForRefereeGroup_Ok_test(int sportId, int? minYearsRefereeing, List<RefereeResult> expectedReferees)
+        public async Task GetRefereesForRefereeGroup_Ok_test(int sportId, int? minYearsRefereeing, List<RefereeForRefereeGroupDTO> expectedReferees)
         {
             // Arrange
             var mock = new Mock<ILogger<RefereesController>>();
@@ -76,7 +66,7 @@ namespace AppForSEII.UT.RefereesController_test
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var actualReferees = ToRefereeResults(okResult.Value);
+            var actualReferees = Assert.IsType<List<RefereeForRefereeGroupDTO>>(okResult.Value);
             Assert.Equal(expectedReferees, actualReferees);
         }
 

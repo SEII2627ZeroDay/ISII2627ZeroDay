@@ -7,6 +7,15 @@ namespace AppForSEII.API.Models;
 [PrimaryKey(nameof(RefereeGroupId), nameof(RefereeId))]
 public class RefereeAssignedTo
 {
+    public RefereeAssignedTo(int refereeGroupId, string refereeId, bool acceptedAssignement, string role, string roleDescription)
+    {
+        RefereeGroupId = refereeGroupId;
+        RefereeId = refereeId;
+        AcceptedAssignement = acceptedAssignement;
+        Role = role;
+        RoleDescription = roleDescription;
+    }
+
     [Required]
     public int RefereeGroupId { get; set; }
 

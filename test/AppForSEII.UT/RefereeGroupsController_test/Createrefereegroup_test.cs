@@ -44,12 +44,13 @@ namespace AppForSEII.UT.RefereeGroupsController_test
                 new Referee(2, 0, football.Id) { Id = "6", Name = "Jorge", Surname = "Mora" });
             _context.SaveChanges();
 
+            // TODO: replace both Game objects with the constructor of Game that initializes the properties
             var game1 = new Game { Name = "Final", Date = DateTime.Now.AddDays(10), Place = "Stadium Seville", SportId = football.Id, ResponsibleForId = captain.Id };
             var game2 = new Game { Name = "Semifinal", Date = DateTime.Now.AddDays(5), Place = "Stadium Albacete", SportId = football.Id, ResponsibleForId = captain.Id };
             _context.Games.AddRange(game1, game2);
             _context.SaveChanges();
 
-            _context.RefereeGroup.Add(new RefereeGroup { Name = "Taken", Description = "Existing group", Rules = "Rules", GameId = game2.Id });
+            _context.RefereeGroup.Add(new RefereeGroup("Taken", "Existing group", "Rules", game2.Id));
             _context.SaveChanges();
         }
 
