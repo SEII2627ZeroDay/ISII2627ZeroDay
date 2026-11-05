@@ -100,26 +100,16 @@ namespace AppForSEII.API.Controllers
             // group and assignments are saved together: if something fails, nothing is stored
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            var group = new RefereeGroup
-            {
-                Name = refereeGroupForCreate.Name,
-                Description = refereeGroupForCreate.Description,
-                Rules = refereeGroupForCreate.Rules,
-                GameId = game.Id
-            };
+            var group = new RefereeGroup(refereeGroupForCreate.Name, refereeGroupForCreate.Description,
+                refereeGroupForCreate.Rules, game.Id);
             _context.RefereeGroup.Add(group);
             await _context.SaveChangesAsync(); // generates group.Id
 
             foreach (var assignment in refereeGroupForCreate.RefereeAssignedTos)
             {
-                _context.RefereeAssignedTo.Add(new RefereeAssignedTo
-                {
-                    RefereeGroupId = group.Id,
-                    RefereeId = assignment.RefereeId,
-                    AcceptedAssignement = false, // post-condition: pending of assignment
-                    Role = assignment.Role,
-                    RoleDescription = assignment.RoleDescription
-                });
+                // AcceptedAssignement = false: post-condition, every referee is pending of assignment
+                _context.RefereeAssignedTo.Add(new RefereeAssignedTo(group.Id, assignment.RefereeId, false,
+                    assignment.Role, assignment.RoleDescription));
             }
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

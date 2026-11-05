@@ -13,6 +13,7 @@ namespace AppForSEII.UT.RefereeGroupsController_test
         private readonly int _existingGroupId;
         private readonly int _groupWithoutRefereesId;
         private readonly int _gameId;
+        private readonly int _friendlyGameId;
 
         public GetRefereeGroup_test()
         {
@@ -40,24 +41,26 @@ namespace AppForSEII.UT.RefereeGroupsController_test
             _context.Referee.AddRange(referee1, referee2);
             _context.SaveChanges();
 
+            // TODO: replace both Game objects with the constructor of Game that initializes the properties
             var finalGame = new Game { Name = "Final", Date = DateTime.Now.AddDays(10), Place = "Stadium Seville", SportId = football.Id, ResponsibleForId = captain.Id };
             var friendlyGame = new Game { Name = "Friendly", Date = DateTime.Now.AddDays(20), Place = "Sports Hall Albacete", SportId = basketball.Id, ResponsibleForId = captain.Id };
             _context.Games.AddRange(finalGame, friendlyGame);
             _context.SaveChanges();
             _gameId = finalGame.Id;
+            _friendlyGameId = friendlyGame.Id;
 
             // group with referees assigned
-            var group1 = new RefereeGroup { Name = "Group1", Description = "Main group", Rules = "Standard rules", GameId = finalGame.Id };
+            var group1 = new RefereeGroup("Group1", "Main group", "Standard rules", finalGame.Id);
             // group without referees assigned
-            var group2 = new RefereeGroup { Name = "Group2", Description = "Empty group", Rules = "No rules", GameId = friendlyGame.Id };
+            var group2 = new RefereeGroup("Group2", "Empty group", "No rules", friendlyGame.Id);
             _context.RefereeGroup.AddRange(group1, group2);
             _context.SaveChanges();
             _existingGroupId = group1.Id;
             _groupWithoutRefereesId = group2.Id;
 
             _context.RefereeAssignedTo.AddRange(
-                new RefereeAssignedTo { RefereeGroupId = group1.Id, RefereeId = referee1.Id, AcceptedAssignement = false, Role = "Main referee", RoleDescription = "Leads the match" },
-                new RefereeAssignedTo { RefereeGroupId = group1.Id, RefereeId = referee2.Id, AcceptedAssignement = false, Role = "Assistant", RoleDescription = "Helps the main referee" });
+                new RefereeAssignedTo(group1.Id, referee1.Id, false, "Main referee", "Leads the match"),
+                new RefereeAssignedTo(group1.Id, referee2.Id, false, "Assistant", "Helps the main referee"));
             _context.SaveChanges();
         }
 
@@ -97,14 +100,16 @@ namespace AppForSEII.UT.RefereeGroupsController_test
             ILogger<RefereeGroupsController> logger = mock.Object;
             var controller = new RefereeGroupsController(_context, logger);
 
+            var expectedGroup = new RefereeGroupDTO(_groupWithoutRefereesId, "Group2", "Empty group", "No rules", _friendlyGameId,
+                new List<RefereeAssignedToDTO>());
+
             // Act
             var result = await controller.GetRefereeGroup(_groupWithoutRefereesId);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             var actualGroup = Assert.IsType<RefereeGroupDTO>(okResult.Value);
-            Assert.Equal("Group2", actualGroup.Name);
-            Assert.Empty(actualGroup.RefereeAssignedTos);
+            Assert.Equal(expectedGroup, actualGroup);
         }
 
         [Fact]
