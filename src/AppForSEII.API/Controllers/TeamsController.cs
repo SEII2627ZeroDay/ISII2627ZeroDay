@@ -77,5 +77,57 @@ namespace AppForSEII.API.Controllers
 
             return Ok(team);
         }
+
+        // GET: api/Teams/GetTeamsForGame?name=Titans&sports=Basketball
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(List<TeamDetailDTO>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult> GetTeamsForGame(string? name, string? sports)
+        {
+            //Iniciamos la consulta sobre la tabla Teams e incluimos sus relaciones
+            var query = _context.Teams
+                .Include(t => t.Sport)
+                .Include(t => t.Captain)
+                .Include(t => t.TeamInvitations)
+                    .ThenInclude(ti => ti.User)
+                .AsQueryable();
+
+            //Aplicamos el filtro por Nombre del equipo si se ha proporcionado
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(t => t.Name.Contains(name));
+            }
+
+            //Aplicamos el filtro por Deporte si se ha proporcionado
+            if (!string.IsNullOrEmpty(sports))
+            {
+                query = query.Where(t => t.Sport.Name == sports);
+            }
+
+            //Proyectamos el resultado al DTO que esperan tus Asserts del test
+            var teams = await query
+                .Select(t => new TeamDetailDTO(
+                    t.Id,
+                    t.Name,
+                    t.Description,
+                    t.MaxMembers,
+                    t.MinAge,
+                    t.MaxAge,
+                    t.Sport.Name,
+                    t.Captain.Name ?? "",
+                    t.Captain.Surname ?? "",
+                    t.Captain.Age,
+                    t.TeamInvitations.Select(ti => new TeamPlayerDTO(
+                        ti.User.Name ?? "",
+                        ti.User.Surname ?? "",
+                        ti.User.Age,
+                        ti.InvitationMessage,
+                        ti.InvitationAccepted
+                    )).ToList()
+                ))
+                .ToListAsync();
+
+            return Ok(teams);
+        }
     }
 }
