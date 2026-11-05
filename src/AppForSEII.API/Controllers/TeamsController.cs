@@ -129,6 +129,7 @@ namespace AppForSEII.API.Controllers
                 .ToListAsync();
 
             return Ok(teams);
+        }
         // POST: api/Teams/CreateTeam
         [HttpPost]
         [Route("[action]")]
