@@ -248,5 +248,42 @@ namespace AppForSEII.API.Controllers
 
             return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, result);
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(GameDetailDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetGame(int id)
+        {
+            var gameDto = await _context.Games
+                .Include(g => g.Sport)
+                .Include(g => g.ResponsibleFor)
+                .Include(g => g.GameInvitations)
+                    .ThenInclude(gi => gi.Team) 
+                .Where(g => g.Id == id)
+                .Select(g => new GameDetailDTO(
+                    g.Id,
+                    g.Name,
+                    g.Date,
+                    g.Place,
+                    g.Description,
+                    g.Sport.Name,
+                    g.ResponsibleFor.UserName ?? "",
+                    g.GameInvitations.Select(gi => new GameInvitationDTO(
+                        gi.Team.Name,
+                        gi.AcceptedGame,
+                        gi.Message
+                    )).ToList()
+                ))
+                .FirstOrDefaultAsync();
+
+            if (gameDto == null)
+            {
+                _logger.LogError($"Game with id {id} was not found");
+                return NotFound();
+            }
+
+            return Ok(gameDto);
+        }
     }
 }
