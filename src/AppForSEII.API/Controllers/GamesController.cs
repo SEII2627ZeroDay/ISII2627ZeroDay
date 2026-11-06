@@ -102,7 +102,7 @@ namespace AppForSEII.API.Controllers
                 return BadRequest("Minimum age cannot be greater than maximum age.");
             }
 
-            // Alternative flow 5: Team's name is already chosen
+            //Alternative flow 5: Team's name is already chosen
             var nameExists = await _context.Teams.AnyAsync(t => t.Name == dto.Name);
             if (nameExists)
             {
@@ -110,7 +110,7 @@ namespace AppForSEII.API.Controllers
                 return Conflict($"Team name '{dto.Name}' already exists.");
             }
 
-            // Sport existence
+            //Sport existence
             var sport = await _context.Sports.FirstOrDefaultAsync(s => s.Name == dto.Sport || s.Id.ToString() == dto.Sport);
             if (sport == null)
             {
@@ -118,7 +118,7 @@ namespace AppForSEII.API.Controllers
                 return NotFound($"Sport '{dto.Sport}' was not found.");
             }
 
-            // Captain existence
+            //Captain existence
             var captain = await _context.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == dto.CaptainId || u.UserName == dto.CaptainId || u.Email == dto.CaptainId);
             if (captain == null)
             {
@@ -126,43 +126,43 @@ namespace AppForSEII.API.Controllers
                 return NotFound($"Captain '{dto.CaptainId}' was not found.");
             }
 
-            // Captain age check
+            //Captain age check
             if (captain.Age < dto.MinAge || captain.Age > dto.MaxAge)
             {
                 _logger.LogError($"Captain age ({captain.Age}) is outside the team age range ({dto.MinAge}-{dto.MaxAge}).");
                 return BadRequest($"Captain's age ({captain.Age}) is outside the team age range ({dto.MinAge}-{dto.MaxAge}).");
             }
-            // Calculates the total number of members: 1 for the current player plus the number of invited players (0 if the list is null).
+            //Calculates the total number of members: 1 for the current player plus the number of invited players (0 if the list is null).
             int totalMembers = 1 + (dto.InvitedPlayers?.Count ?? 0);
 
-            // Alternative flow 4: Number of players invited is too small for the sport selected
+            //Alternative flow 4: Number of players invited is too small for the sport selected
             if (totalMembers < sport.MinimumNumberOfPlayers)
             {
                 _logger.LogError($"Total team members ({totalMembers}) is less than minimum required ({sport.MinimumNumberOfPlayers}) for {sport.Name}.");
                 return BadRequest($"The number of players ({totalMembers}) is too small for {sport.Name}, which requires at least {sport.MinimumNumberOfPlayers} players.");
             }
 
-            // Max members constraint
+            //Max members constraint
             if (totalMembers > dto.MaxMembers)
             {
                 _logger.LogError($"Total members ({totalMembers}) exceeds MaxMembers ({dto.MaxMembers}).");
                 return BadRequest($"Total team members ({totalMembers}) exceeds maximum allowed members ({dto.MaxMembers}).");
             }
 
-            // Check invitations
+            //Check invitations
             var invitedUsers = new List<ApplicationUser>();
             if (dto.InvitedPlayers != null && dto.InvitedPlayers.Count > 0)
             {
                 var invitedUserIds = dto.InvitedPlayers.Select(p => p.UserId).ToList();
 
-                // Check for duplicates in invitations
+                //Check for duplicates in invitations
                 if (invitedUserIds.Distinct().Count() != invitedUserIds.Count)
                 {
                     _logger.LogError("Duplicate users found in invited players list.");
                     return BadRequest("Duplicate invited players in the team.");
                 }
 
-                // Captain cannot invite themselves
+                //Captain cannot invite themselves
                 if (invitedUserIds.Any(id => id == captain.Id || id == captain.UserName || id == captain.Email))
                 {
                     _logger.LogError("Captain cannot be invited as a teammate.");
@@ -189,7 +189,7 @@ namespace AppForSEII.API.Controllers
                 }
             }
 
-            // Create team entity
+            //Create team entity
             var team = new Team(
                 dto.Name,
                 dto.Description,
@@ -202,7 +202,7 @@ namespace AppForSEII.API.Controllers
 
             _context.Teams.Add(team);
 
-            // Create team invitations (marked as pending: InvitationAccepted = false)
+            //Create team invitations (marked as pending: InvitationAccepted = false)
             if (dto.InvitedPlayers != null)
             {
                 foreach (var invitationDto in dto.InvitedPlayers)
@@ -220,7 +220,7 @@ namespace AppForSEII.API.Controllers
 
             await _context.SaveChangesAsync();
 
-            // Build TeamDetailDTO for response
+            //Build TeamDetailDTO for response
             var invitedPlayerDTOs = (dto.InvitedPlayers ?? new List<TeamInvitationDTO>()).Select(i =>
             {
                 var u = invitedUsers.First(user => user.Id == i.UserId || user.UserName == i.UserId || user.Email == i.UserId);
@@ -250,7 +250,7 @@ namespace AppForSEII.API.Controllers
             return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, result);
         }
 
-        //GET
+        //GET GetGame
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(GameDetailDTO), (int)HttpStatusCode.OK)]
@@ -288,7 +288,7 @@ namespace AppForSEII.API.Controllers
             return Ok(gameDto);
         }
 
-        // POST: api/Games/CreateGame
+        //POST CreateGame
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(GameDetailDTO), (int)HttpStatusCode.Created)]
@@ -300,7 +300,7 @@ namespace AppForSEII.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            //Valida unicidad del nombre
+            //Validamos unicidad del nombre
             var nameExists = await _context.Games.AnyAsync(g => g.Name == gameForCreateDto.Name);
             if (nameExists)
             {
@@ -308,7 +308,7 @@ namespace AppForSEII.API.Controllers
                 return BadRequest("A game with this name already exists.");
             }
 
-            //Busca Deporte y Usuario Responsable
+            //Buscamos Deporte y Usuario Responsable
             var sport = await _context.Sports.FirstOrDefaultAsync(s => s.Name == gameForCreateDto.SportName);
             if (sport == null)
             {
@@ -323,7 +323,7 @@ namespace AppForSEII.API.Controllers
                 return BadRequest("The responsible user does not exist.");
             }
 
-            //Crea la entidad Game base
+            //Creamos la entidad Game base
             var newGame = new Game(
                 gameForCreateDto.Name,
                 gameForCreateDto.Date,
@@ -333,7 +333,7 @@ namespace AppForSEII.API.Controllers
                 responsible
             );
 
-            //Procesar las invitaciones a los equipos
+            //Procesamos las invitaciones a los equipos
             foreach (var invitationDto in gameForCreateDto.GameInvitations)
             {
                 var team = await _context.Teams.FirstOrDefaultAsync(t => t.Name == invitationDto.TeamName);
@@ -347,11 +347,11 @@ namespace AppForSEII.API.Controllers
                 newGame.GameInvitations.Add(invitation);
             }
 
-            //Guarda en la Base de Datos
+            //Guardamos en la Base de Datos
             _context.Games.Add(newGame);
             await _context.SaveChangesAsync();
 
-            //Proyecta el resultado final a un GameDetailDTO
+            //Proyectamos el resultado final a un GameDetailDTO
             var resultDto = new GameDetailDTO(
                 newGame.Id,
                 newGame.Name,
