@@ -1,4 +1,4 @@
-namespace AppForSEII.API.DTOs; //CAMBIARRRRRRRRRRRRR Y PONER .GameDTOs LUEGOOOOOOOOO
+namespace AppForSEII.API.DTOs.GameDTOs; 
 
 public class GameInvitationDTO
 {
