@@ -20,19 +20,19 @@ namespace AppForSEII.API.Controllers
             _logger = logger;
         }
 
-        // Details of a referee group and its assigned referees.
+        // GET: api/RefereeGroups/GetRefereeGroup?id=5
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(RefereeGroupDTO), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<RefereeGroupDTO>> GetRefereeGroup(int id)
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetRefereeGroup(int id)
         {
             var group = await _context.RefereeGroup.FirstOrDefaultAsync(rg => rg.Id == id);
 
             if (group == null)
             {
-                _logger.LogError($"{DateTime.Now} Exception: referee group {id} not found");
-                return NotFound("The referee group does not exist");
+                _logger.LogError($"Error: Referee group with id {id} does not exist");
+                return NotFound();
             }
 
             var assignments = await _context.RefereeAssignedTo
@@ -41,104 +41,92 @@ namespace AppForSEII.API.Controllers
                 .Select(a => new RefereeAssignedToDTO(a.RefereeGroupId, a.RefereeId, a.AcceptedAssignement, a.Role, a.RoleDescription))
                 .ToListAsync();
 
-            var dto = new RefereeGroupDTO(group.Id, group.Name, group.Description, group.Rules, group.GameId, assignments);
+            var refereeGroupDTO = new RefereeGroupDTO(group.Id, group.Name, group.Description, group.Rules, group.GameId, assignments);
 
-            return Ok(dto);
+            return Ok(refereeGroupDTO);
         }
 
-        // Creates a referee group for a game and assigns the selected referees to it.
+        // POST: api/RefereeGroups/CreateRefereeGroup
+        // Any validation defined with DataAnnotations in the DTOs is checked before running the method.
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(RefereeGroupDTO), (int)HttpStatusCode.Created)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<RefereeGroupDTO>> CreateRefereeGroup([FromBody] RefereeGroupDTO dto)
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> CreateRefereeGroup(RefereeGroupDTO refereeGroupForCreate)
         {
-            // Mandatory data missing or invalid is already rejected with a 400 by
-            // [ApiController] thanks to the DataAnnotations of the DTOs.
-            if (dto.RefereeAssignedTos.Count == 0)
+            if (refereeGroupForCreate.RefereeAssignedTos.Count == 0)
             {
-                return BadRequest("You must select at least one referee");
+                return BadRequestWithError("RefereeAssignedTos", "You must select at least one referee");
             }
 
-            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == dto.GameId);
+            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == refereeGroupForCreate.GameId);
             if (game == null)
             {
-                _logger.LogError($"{DateTime.Now} Exception: game {dto.GameId} does not exist");
-                return BadRequest("The game does not exist");
+                return BadRequestWithError("GameId", "The game does not exist");
             }
 
             if (await _context.RefereeGroup.AnyAsync(rg => rg.GameId == game.Id))
             {
-                return BadRequest("The game already has a referee group");
+                return BadRequestWithError("GameId", "The game already has a referee group");
             }
 
-            // Alternative flow 6: the name of the group must be unique
-            if (await _context.RefereeGroup.AnyAsync(rg => rg.Name == dto.Name))
+            // the name of the group must be unique
+            if (await _context.RefereeGroup.AnyAsync(rg => rg.Name == refereeGroupForCreate.Name))
             {
-                _logger.LogError($"{DateTime.Now} Exception: referee group name '{dto.Name}' already exists");
-                return BadRequest("A referee group with that name already exists");
+                return BadRequestWithError("Name", "A referee group with that name already exists");
             }
 
-            var refereeIds = dto.RefereeAssignedTos.Select(a => a.RefereeId).ToList();
+            var refereeIds = refereeGroupForCreate.RefereeAssignedTos.Select(a => a.RefereeId).ToList();
             if (refereeIds.Distinct().Count() != refereeIds.Count)
             {
-                return BadRequest("A referee cannot be selected more than once");
+                return BadRequestWithError("RefereeAssignedTos", "A referee cannot be selected more than once");
             }
 
-            // Alternative flow 5: number of referees too small for the sport of the game
-            var sport = await _context.Sports.FirstOrDefaultAsync(s => s.Id == game.SportId);
-            if (sport == null)
-            {
-                return BadRequest("The sport of the game does not exist");
-            }
-
+            // the number of referees must be enough for the sport of the game
+            var sport = await _context.Sports.FirstAsync(s => s.Id == game.SportId);
             if (refereeIds.Count < sport.NumberofReferees)
             {
-                _logger.LogError($"{DateTime.Now} Exception: {refereeIds.Count} referees selected, {sport.NumberofReferees} needed");
-                return BadRequest($"The sport requires at least {sport.NumberofReferees} referees");
+                return BadRequestWithError("RefereeAssignedTos", $"The sport requires at least {sport.NumberofReferees} referees");
             }
 
-            // Every referee must exist and be instructed in the sport of the game
+            // every referee must exist and be instructed in the sport of the game
             int validReferees = await _context.Referee
                 .CountAsync(r => refereeIds.Contains(r.Id) && r.SportId == game.SportId && r.YearsRefereeing > 0);
             if (validReferees != refereeIds.Count)
             {
-                return BadRequest("Some referees do not exist or are not instructed in the sport of the game");
+                return BadRequestWithError("RefereeAssignedTos", "Some referees do not exist or are not instructed in the sport of the game");
             }
 
-            // Group and assignments are saved together: if something fails, nothing is stored.
+            // group and assignments are saved together: if something fails, nothing is stored
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            var group = new RefereeGroup
-            {
-                Name = dto.Name,
-                Description = dto.Description,
-                Rules = dto.Rules,
-                GameId = game.Id
-            };
+            var group = new RefereeGroup(refereeGroupForCreate.Name, refereeGroupForCreate.Description,
+                refereeGroupForCreate.Rules, game.Id);
             _context.RefereeGroup.Add(group);
             await _context.SaveChangesAsync(); // generates group.Id
 
-            foreach (var a in dto.RefereeAssignedTos)
+            foreach (var assignment in refereeGroupForCreate.RefereeAssignedTos)
             {
-                _context.RefereeAssignedTo.Add(new RefereeAssignedTo
-                {
-                    RefereeGroupId = group.Id,
-                    RefereeId = a.RefereeId,
-                    AcceptedAssignement = false, // post-condition: pending of assignment
-                    Role = a.Role,
-                    RoleDescription = a.RoleDescription
-                });
+                // AcceptedAssignement = false: post-condition, every referee is pending of assignment
+                _context.RefereeAssignedTo.Add(new RefereeAssignedTo(group.Id, assignment.RefereeId, false,
+                    assignment.Role, assignment.RoleDescription));
             }
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            var assignments = dto.RefereeAssignedTos
+            var assignmentsDTO = refereeGroupForCreate.RefereeAssignedTos
                 .Select(a => new RefereeAssignedToDTO(group.Id, a.RefereeId, false, a.Role, a.RoleDescription))
                 .ToList();
-            var result = new RefereeGroupDTO(group.Id, group.Name, group.Description, group.Rules, group.GameId, assignments);
+            var refereeGroupDetail = new RefereeGroupDTO(group.Id, group.Name, group.Description, group.Rules, group.GameId, assignmentsDTO);
 
-            return CreatedAtAction(nameof(GetRefereeGroup), new { id = group.Id }, result);
+            return CreatedAtAction("GetRefereeGroup", new { id = group.Id }, refereeGroupDetail);
+        }
+
+        private ActionResult BadRequestWithError(string key, string message)
+        {
+            _logger.LogError($"{DateTime.Now} Error: {message}");
+            ModelState.AddModelError(key, message);
+            return BadRequest(new ValidationProblemDetails(ModelState));
         }
     }
 }

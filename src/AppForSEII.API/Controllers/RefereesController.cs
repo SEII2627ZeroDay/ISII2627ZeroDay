@@ -1,5 +1,6 @@
 using System.Net;
 using AppForSEII.API.Data;
+using AppForSEII.API.DTOs.RefereeDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +38,7 @@ namespace AppForSEII.API.Controllers
         // Optional filter: minimum years refereeing (higher or equal).
         [HttpGet]
         [Route("[action]")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IList<RefereeForRefereeGroupDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<ActionResult> GetRefereesForRefereeGroup(int sportId, int? minYearsRefereeing = null)
         {
@@ -55,8 +56,9 @@ namespace AppForSEII.API.Controllers
                 query = query.Where(r => r.YearsRefereeing >= minYearsRefereeing.Value);
             }
 
-            var referees = await query
-                .Select(r => new { r.Id, r.Name, r.Surname, r.YearsRefereeing, r.Rating })
+            IList<RefereeForRefereeGroupDTO> referees = await query
+                .OrderBy(r => r.Name)
+                .Select(r => new RefereeForRefereeGroupDTO(r.Id, r.Name, r.Surname, r.YearsRefereeing, r.Rating))
                 .ToListAsync();
 
             if (referees.Count == 0)
