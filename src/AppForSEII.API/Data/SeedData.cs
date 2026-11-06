@@ -238,30 +238,26 @@ public class SeedData
 
             var games = new List<Game>();
 
-            if (football != null)
+            if (football != null && elena != null)
             {
-                games.Add(new Game
-                {
-                    Name = "Final Cup 2026",
-                    Date = DateTime.UtcNow.AddDays(7),
-                    Place = "Campus Central Stadium",
-                    Description = "University Championship Final Match",
-                    SportId = football.Id,
-                    ResponsibleForId = "1" // Elena
-                });
+                games.Add(new Game(
+                    "Final Cup 2026",
+                    DateTime.UtcNow.AddDays(7),
+                    "Campus Central Stadium",
+                    "University Championship Final Match",
+                    football,
+                    elena));
             }
 
-            if (basketball != null)
+            if (basketball != null && peter != null)
             {
-                games.Add(new Game
-                {
-                    Name = "Spring Derby",
-                    Date = DateTime.UtcNow.AddDays(14),
-                    Place = "Sports Complex Arena A",
-                    Description = "Spring Derby Basketball Game",
-                    SportId = basketball.Id,
-                    ResponsibleForId = "3" // Peter
-                });
+                games.Add(new Game(
+                    "Spring Derby",
+                    DateTime.UtcNow.AddDays(14),
+                    "Sports Complex Arena A",
+                    "Spring Derby Basketball Game",
+                    basketball,
+                    peter));
             }
 
             dbContext.Games.AddRange(games);
@@ -277,13 +273,11 @@ public class SeedData
 
             if (eagles != null && finalCup != null)
             {
-                var invitation = new GameInvitation
-                {
-                    TeamId = eagles.Id,
-                    GameId = finalCup.Id,
-                    AcceptedGame = true,
-                    Message = "Invitation to participate in the Final Cup 2026 match."
-                };
+                var invitation = new GameInvitation(
+                    eagles,
+                    finalCup,
+                    true,
+                    "Invitation to participate in the Final Cup 2026 match.");
 
                 dbContext.GameInvitations.Add(invitation);
                 dbContext.SaveChanges();
@@ -291,13 +285,11 @@ public class SeedData
 
             if (titans != null && springDerby != null)
             {
-                var invitation = new GameInvitation
-                {
-                    TeamId = titans.Id,
-                    GameId = springDerby.Id,
-                    AcceptedGame = true,
-                    Message = "Invitation to participate in the Spring Derby match."
-                };
+                var invitation = new GameInvitation(
+                    titans,
+                    springDerby,
+                    true,
+                    "Invitation to participate in the Spring Derby match.");
 
                 dbContext.GameInvitations.Add(invitation);
                 dbContext.SaveChanges();
