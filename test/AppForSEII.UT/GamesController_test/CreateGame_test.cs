@@ -75,12 +75,19 @@ namespace AppForSEII.UT.GamesController_test
             //Assert
             var createdResult = Assert.IsType<CreatedAtActionResult>(result);
             var actualDto = Assert.IsType<GameDetailDTO>(createdResult.Value);
-            
-            Assert.Equal("New Unique Game", actualDto.Name);
-            Assert.Equal("Football", actualDto.SportName);
-            Assert.Equal("elena@uclm.es", actualDto.ResponsibleUserName);
-            Assert.Single(actualDto.GameInvitations);
-            Assert.Equal("Eagles", actualDto.GameInvitations[0].TeamName);
+
+            var expectedDto = new GameDetailDTO(
+                actualDto.Id,
+                "New Unique Game",
+                new DateTime(2026, 11, 30, 20, 0, 0),
+                "Main Pavilion",
+                "Friendly Match",
+                "Football",
+                "elena@uclm.es",
+                new List<GameInvitationDTO> { new GameInvitationDTO("Eagles", false, "We invite you!") }
+            );
+
+            Assert.Equal(expectedDto, actualDto);
         }
 
         [Fact]
