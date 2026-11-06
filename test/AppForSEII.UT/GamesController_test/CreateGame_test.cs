@@ -16,36 +16,22 @@ namespace AppForSEII.UT.GamesController_test
     {
         public CreateGame_test()
         {
-            //SeedData
-            var football = _context.Sports.FirstOrDefault(s => s.Name == "Football");
-            if (football == null)
-            {
-                football = new Sport("Football", 11, 4, "Football match", "Standard rules");
-                _context.Sports.Add(football);
-                _context.SaveChanges();
-            }
+            //Seed de datos base controlados e inmunes a nulos
+            var football = _context.Sports.FirstOrDefault(s => s.Name == "Football") ?? new Sport { Name = "Football" };
+            var peter = _context.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es") ?? new ApplicationUser { UserName = "peter@uclm.es", Name = "Peter", Surname = "Jackson", Age = 28 };
+            var elena = _context.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es") ?? new ApplicationUser { UserName = "elena@uclm.es", Name = "Elena", Surname = "Navarro", Age = 41 };
 
-            var peter = _context.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es") as ApplicationUser;
-            if (peter == null)
-            {
-                //Constructor ApplicationUser
-                peter = new ApplicationUser("peter-id", "Peter", "Jackson", "peter@uclm.es", new DateOnly(1998, 5, 20), 28, Gender.Male);
-                _context.Users.Add(peter);
-                _context.SaveChanges();
-            }
+            if (_context.Entry(football).State == Microsoft.EntityFrameworkCore.EntityState.Detached) _context.Sports.Add(football);
+            if (_context.Entry(peter).State == Microsoft.EntityFrameworkCore.EntityState.Detached) _context.Users.Add(peter);
+            if (_context.Entry(elena).State == Microsoft.EntityFrameworkCore.EntityState.Detached) _context.Users.Add(elena);
+            _context.SaveChanges();
 
-            var elena = _context.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es") as ApplicationUser;
-            if (elena == null)
-            {
-                elena = new ApplicationUser("elena-id", "Elena", "Navarro", "elena@uclm.es", new DateOnly(1985, 3, 15), 41, Gender.Female);
-                _context.Users.Add(elena);
-                _context.SaveChanges();
-            }
-
-            var eaglesTeam = new Team("Eagles", "University football team", 15, 18, 35, peter!, football);
+            //Guardamos un equipo semilla para las pruebas de invitaciones válidas
+            var eaglesTeam = new Team("Eagles", "University football team", 15, 18, 35, peter, football);
             _context.Teams.Add(eaglesTeam);
 
-            var existingGame = new Game("Duplicate Game Name", new DateTime(2026, 11, 25), "Stadium", "Desc", football, elena!);
+            //Guardamos un partido existente para comprobar la validación de unicidad de nombres
+            var existingGame = new Game("Duplicate Game Name", new DateTime(2026, 11, 25), "Stadium", "Desc", football, elena);
             _context.Games.Add(existingGame);
 
             _context.SaveChanges();
@@ -120,7 +106,7 @@ namespace AppForSEII.UT.GamesController_test
                 new DateTime(2026, 11, 30),
                 "Main Pavilion",
                 "Friendly Match",
-                "Non-Existing Sport Name", //Invalid sport
+                "Non-Existing Sport Name", // Deporte inválido
                 "elena@uclm.es",
                 new List<GameInvitationDTO>()
             );
@@ -146,7 +132,7 @@ namespace AppForSEII.UT.GamesController_test
                 "Main Pavilion",
                 "Friendly Match",
                 "Football",
-                "fakeuser@uclm.es", //invalid email
+                "fakeuser@uclm.es", // Correo inválido
                 new List<GameInvitationDTO>()
             );
 
@@ -167,7 +153,7 @@ namespace AppForSEII.UT.GamesController_test
 
             var invalidInvitations = new List<GameInvitationDTO> 
             { 
-                new GameInvitationDTO("Non-Existing Team", false, "Hello!") //invalid team
+                new GameInvitationDTO("Non-Existing Team", false, "Hello!") // Equipo inválido
             };
             
             var gameForCreate = new GameForCreateDTO(

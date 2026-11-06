@@ -18,38 +18,20 @@ namespace AppForSEII.UT.GamesController_test
         public GetGame_test()
         {
             //SeedData
-            var football = _context.Sports.FirstOrDefault(s => s.Name == "Football");
-            if (football == null)
-            {
-                //Constructor parameters from Sport
-                football = new Sport("Football", 11, 4, "Football match", "Standard rules");
-                _context.Sports.Add(football);
-                _context.SaveChanges();
-            }
+            var football = _context.Sports.FirstOrDefault(s => s.Name == "Football") ?? new Sport {Name="Football"};
+            var peter = _context.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es") ?? new ApplicationUser {UserName = "peter@uclm.es", Name = "Peter", Surname = "Jackson", Age = 28};
+            var elena = _context.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es") ?? new ApplicationUser {UserName = "elena@uclm.es", Name = "Elena", Surname = "Navarro", Age = 41};
 
-            var peter = _context.Users.FirstOrDefault(u => u.UserName == "peter@uclm.es") as ApplicationUser;
-            if (peter == null)
-            {
-                //Constructor parameters from ApplicationUser
-                peter = new ApplicationUser("peter-id", "Peter", "Jackson", "peter@uclm.es", new DateOnly(1998, 5, 20), 28, Gender.Male);
-                _context.Users.Add(peter);
-                _context.SaveChanges();
-            }
+            if (_context.Entry(football).State == Microsoft.EntityFrameworkCore.EntityState.Detached) _context.Sports.Add(football);
+            if (_context.Entry(peter).State == Microsoft.EntityFrameworkCore.EntityState.Detached) _context.Users.Add(peter);
+            if (_context.Entry(elena).State == Microsoft.EntityFrameworkCore.EntityState.Detached) _context.Users.Add(elena);
+            _context.SaveChanges();
 
-            var elena = _context.Users.FirstOrDefault(u => u.UserName == "elena@uclm.es") as ApplicationUser;
-            if (elena == null)
-            {
-                //Constructor parameters from ApplicationUser
-                elena = new ApplicationUser("elena-id", "Elena", "Navarro", "elena@uclm.es", new DateOnly(1985, 3, 15), 41, Gender.Female);
-                _context.Users.Add(elena);
-                _context.SaveChanges();
-            }
-
-            var eaglesTeam = new Team("Eagles", "University football team", 15, 18, 35, peter!, football);
+            var eaglesTeam = new Team("Eagles", "University football team", 15, 18, 35, peter, football);
             _context.Teams.Add(eaglesTeam);
 
             var gameDate = new DateTime(2026, 11, 20, 18, 0, 0);
-            var testGame = new Game("Champions Final", gameDate, "UCLM Stadium", "Final match of the tournament", football, elena!);
+            var testGame = new Game("Champions Final", gameDate, "UCLM Stadium", "Final match of the tournament", football, elena);
             _context.Games.Add(testGame);
             
             _context.SaveChanges();
