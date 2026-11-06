@@ -15,6 +15,15 @@ public class Referee : ApplicationUser
         SportId = sportId;
     }
 
+public Referee(string id, string name, string surname, string userName, int rating, int yearsRefereeing, int sportId)
+       : base(id, name, surname, userName)
+   {
+       Rating = rating;
+       YearsRefereeing = yearsRefereeing;
+       SportId = sportId;
+   }
+   
+
     [Range(0, 5)]
     public int Rating { get; set; }
 

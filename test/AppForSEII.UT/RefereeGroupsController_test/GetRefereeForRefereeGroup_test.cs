@@ -19,10 +19,10 @@ namespace AppForSEII.UT.RefereesController_test
 
             var referees = new List<Referee>()
             {
-                new Referee(5, 3, football.Id) { Id = "2", Name = "Ana", Surname = "Torres" },
-                new Referee(4, 1, football.Id) { Id = "3", Name = "Luis", Surname = "Perez" },
+                new Referee("2", "Ana", "Torres", "ana@uclm.es", 5, 3, football.Id),
+                new Referee("3", "Luis", "Perez", "luis@uclm.es", 4, 1, football.Id),
                 // this referee has 0 years refereeing so it shouldn't be returned
-                new Referee(3, 0, football.Id) { Id = "4", Name = "Marta", Surname = "Ruiz" },
+                new Referee("4", "Marta", "Ruiz", "marta@uclm.es", 3, 0, football.Id),
             };
             _context.Referee.AddRange(referees);
             _context.SaveChanges();

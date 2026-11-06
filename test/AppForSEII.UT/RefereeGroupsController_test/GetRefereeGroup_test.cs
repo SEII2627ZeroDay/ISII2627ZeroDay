@@ -42,8 +42,8 @@ namespace AppForSEII.UT.RefereeGroupsController_test
             _context.SaveChanges();
 
             // TODO: replace both Game objects with the constructor of Game that initializes the properties
-            var finalGame = new Game { Name = "Final", Date = DateTime.Now.AddDays(10), Place = "Stadium Seville", SportId = football.Id, ResponsibleForId = captain.Id };
-            var friendlyGame = new Game { Name = "Friendly", Date = DateTime.Now.AddDays(20), Place = "Sports Hall Albacete", SportId = basketball.Id, ResponsibleForId = captain.Id };
+            var finalGame = new Game("Final", DateTime.Now.AddDays(10), "Stadium Seville", null, football, captain);
+            var friendlyGame = new Game("Friendly", DateTime.Now.AddDays(20), "Sports Hall Albacete", null, basketball, captain);
             _context.Games.AddRange(finalGame, friendlyGame);
             _context.SaveChanges();
             _gameId = finalGame.Id;
