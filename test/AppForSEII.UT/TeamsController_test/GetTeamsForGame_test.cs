@@ -96,7 +96,7 @@ namespace AppForSEII.UT.TeamsController_test
             Assert.Equal(expectedTeams, teamsactualresult);
         }
 
-        public static IEnumerable<object[]> TestCasesFor_GetTeamsForGame()
+        public static IEnumerable<object?[]> TestCasesFor_GetTeamsForGame()
         {
             List<TeamDetailDTO> TeamsDTOs = new List<TeamDetailDTO>()
             {
