@@ -1,4 +1,4 @@
-namespace AppForSEII.API.DTOs.GameDTOs; 
+namespace AppForSEII.API.DTOs.GameDTOs;
 
 public class GameInvitationDTO
 {

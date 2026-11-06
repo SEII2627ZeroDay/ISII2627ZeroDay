@@ -10,13 +10,13 @@ public class GameDetailDTO
     public GameDetailDTO() { }
 
     public GameDetailDTO(
-        int id, 
-        string name, 
-        DateTime date, 
-        string place, 
-        string? description, 
-        string sportName, 
-        string responsibleUserName, 
+        int id,
+        string name,
+        DateTime date,
+        string place,
+        string? description,
+        string sportName,
+        string responsibleUserName,
         IList<GameInvitationDTO> gameInvitations)
     {
         Id = id;
@@ -30,21 +30,21 @@ public class GameDetailDTO
     }
 
     public int Id { get; set; }
-    
+
     [Required]
     public string Name { get; set; } = "";
-    
+
     [Required]
     public DateTime Date { get; set; }
-    
+
     [Required]
     public string Place { get; set; } = "";
-    
+
     public string? Description { get; set; }
-    
+
     [Required]
     public string SportName { get; set; } = "";
-    
+
     [Required]
     public string ResponsibleUserName { get; set; } = "";
 
@@ -60,7 +60,7 @@ public class GameDetailDTO
                Description == other.Description &&
                SportName == other.SportName &&
                ResponsibleUserName == other.ResponsibleUserName &&
-               (GameInvitations == other.GameInvitations || 
+               (GameInvitations == other.GameInvitations ||
                 (GameInvitations != null && other.GameInvitations != null && GameInvitations.SequenceEqual(other.GameInvitations)));
     }
 
