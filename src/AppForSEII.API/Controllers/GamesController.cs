@@ -13,9 +13,9 @@ namespace AppForSEII.API.Controllers
     public class GamesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<TeamsController> _logger;
+        private readonly ILogger<GamesController> _logger;
 
-        public GamesController(ApplicationDbContext context, ILogger<TeamsController> logger)
+        public GamesController(ApplicationDbContext context, ILogger<GamesController> logger)
         {
             _context = context;
             _logger = logger;
