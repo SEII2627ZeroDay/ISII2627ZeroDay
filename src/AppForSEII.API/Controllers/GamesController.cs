@@ -21,7 +21,7 @@ namespace AppForSEII.API.Controllers
             _logger = logger;
         }
 
-        // Slide 11 example: ComputeDivision
+        //Slide 11 example: ComputeDivision
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(decimal), (int)HttpStatusCode.OK)]
@@ -37,7 +37,7 @@ namespace AppForSEII.API.Controllers
             return Ok(result);
         }
 
-        // GET: api/Teams/GetTeam?id=1
+        //GET: api/Teams/GetTeam?id=1
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(TeamDetailDTO), (int)HttpStatusCode.OK)]
@@ -80,7 +80,7 @@ namespace AppForSEII.API.Controllers
             return Ok(team);
         }
 
-        // POST: api/Teams/CreateTeam
+        //POST: api/Teams/CreateTeam
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(TeamDetailDTO), (int)HttpStatusCode.Created)]
@@ -250,6 +250,7 @@ namespace AppForSEII.API.Controllers
             return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, result);
         }
 
+        //GET
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(GameDetailDTO), (int)HttpStatusCode.OK)]
@@ -285,6 +286,88 @@ namespace AppForSEII.API.Controllers
             }
 
             return Ok(gameDto);
+        }
+
+        // POST: api/Games/CreateGame
+        [HttpPost]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(GameDetailDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> CreateGame([FromBody] GameForCreateDTO gameForCreateDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            //Valida unicidad del nombre
+            var nameExists = await _context.Games.AnyAsync(g => g.Name == gameForCreateDto.Name);
+            if (nameExists)
+            {
+                _logger.LogError($"A game with name '{gameForCreateDto.Name}' already exists.");
+                return BadRequest("A game with this name already exists.");
+            }
+
+            //Busca Deporte y Usuario Responsable
+            var sport = await _context.Sports.FirstOrDefaultAsync(s => s.Name == gameForCreateDto.SportName);
+            if (sport == null)
+            {
+                _logger.LogError($"Sport '{gameForCreateDto.SportName}' not found.");
+                return BadRequest("The specified sport does not exist.");
+            }
+
+            var responsible = await _context.Users.FirstOrDefaultAsync(u => u.UserName == gameForCreateDto.ResponsibleUserName);
+            if (responsible == null)
+            {
+                _logger.LogError($"User '{gameForCreateDto.ResponsibleUserName}' not found.");
+                return BadRequest("The responsible user does not exist.");
+            }
+
+            //Crea la entidad Game base
+            var newGame = new Game(
+                gameForCreateDto.Name,
+                gameForCreateDto.Date,
+                gameForCreateDto.Place,
+                gameForCreateDto.Description,
+                sport,
+                responsible
+            );
+
+            //Procesar las invitaciones a los equipos
+            foreach (var invitationDto in gameForCreateDto.GameInvitations)
+            {
+                var team = await _context.Teams.FirstOrDefaultAsync(t => t.Name == invitationDto.TeamName);
+                if (team == null)
+                {
+                    _logger.LogError($"Team '{invitationDto.TeamName}' not found. Aborting creation.");
+                    return BadRequest($"The team '{invitationDto.TeamName}' does not exist.");
+                }
+
+                var invitation = new GameInvitation(team, newGame, invitationDto.InvitationAccepted, invitationDto.InvitationMessage ?? "We invite you to participate!");
+                newGame.GameInvitations.Add(invitation);
+            }
+
+            //Guarda en la Base de Datos
+            _context.Games.Add(newGame);
+            await _context.SaveChangesAsync();
+
+            //Proyecta el resultado final a un GameDetailDTO
+            var resultDto = new GameDetailDTO(
+                newGame.Id,
+                newGame.Name,
+                newGame.Date,
+                newGame.Place,
+                newGame.Description,
+                newGame.Sport.Name,
+                newGame.ResponsibleFor.UserName ?? "",
+                newGame.GameInvitations.Select(gi => new GameInvitationDTO(
+                    gi.Team.Name,
+                    gi.AcceptedGame,
+                    gi.Message
+                )).ToList()
+            );
+
+            return CreatedAtAction(nameof(GetGame), new { id = newGame.Id }, resultDto);
         }
     }
 }
