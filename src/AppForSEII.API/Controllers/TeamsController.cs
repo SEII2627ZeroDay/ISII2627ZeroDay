@@ -229,12 +229,12 @@ namespace AppForSEII.API.Controllers
                     return NotFound("One or more invited users do not exist.");
                 }
 
-                foreach (var user in invitedUsers)
-                {
-                    if (user.Age < dto.MinAge || user.Age > dto.MaxAge)
-                    {
-                        _logger.LogError($"Invited player '{user.Name} {user.Surname}' age ({user.Age}) does not meet the age criteria ({dto.MinAge}-{dto.MaxAge}).");
-                        return BadRequest($"Invited player '{user.Name} {user.Surname}' (age {user.Age}) does not meet the age criteria ({dto.MinAge}-{dto.MaxAge}).");
+                // EXAM PART
+
+                foreach (var user in invitedUsers){
+                     if (user.Age < dto.MinAge){
+                        _logger.LogError("Error! One f the players is younger than the minimum required age");
+                        return BadRequest("Error! One f the players is younger than the minimum required age");
                     }
                 }
             }

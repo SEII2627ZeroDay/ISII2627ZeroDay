@@ -248,6 +248,17 @@ namespace AppForSEII.UT.TeamsController_test
                 "Captain cannot be invited"
             };
 
+            // TC11: Invited player age lower than minAge of the team 
+            yield return new object[] {
+                CreateDTO(
+                    invitedPlayers: new List<TeamInvitationDTO>
+                    {
+                        new TeamInvitationDTO("4", "Welcome Sofia") // (Sofia "4" is 16, range is 20-45)
+                    }),
+                typeof(BadRequestObjectResult),
+                "Error! One f the players is younger than the minimum required age"
+            };
+
             // TC10: Invited player does not exist ("unknown_user")
             yield return new object[] {
                 CreateDTO(
@@ -259,16 +270,6 @@ namespace AppForSEII.UT.TeamsController_test
                 "do not exist"
             };
 
-            // TC11: Invited player age outside range (Sofia "4" is 16, range is 20-45)
-            yield return new object[] {
-                CreateDTO(
-                    invitedPlayers: new List<TeamInvitationDTO>
-                    {
-                        new TeamInvitationDTO("4", "Welcome Sofia")
-                    }),
-                typeof(BadRequestObjectResult),
-                "does not meet the age criteria"
-            };
         }
     }
 }
