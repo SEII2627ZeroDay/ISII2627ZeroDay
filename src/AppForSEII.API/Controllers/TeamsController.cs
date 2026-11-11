@@ -33,6 +33,7 @@ namespace AppForSEII.API.Controllers
                 return BadRequest("op2 must be different from 0");
             }
             decimal result = decimal.Round(op1 / op2, 2);
+            _logger.LogInformation("ComputeDivision succeeded: {Op1} / {Op2} = {Result}", op1, op2, result);
             return Ok(result);
         }
 
@@ -73,6 +74,7 @@ namespace AppForSEII.API.Controllers
             if (team == null)
             {
                 _logger.LogError($"Team with id {id} was not found");
+                _logger.LogInformation("GetTeam succeeded for team Id={Id} ({Name})", team.Id, team.Name);
                 return NotFound();
             }
 
@@ -245,6 +247,8 @@ namespace AppForSEII.API.Controllers
                 captain.Age,
                 invitedPlayerDTOs
             );
+            
+            _logger.LogInformation("CreateTeam succeeded: created '{Name}' with Id={Id}", team.Name, team.Id);
 
             return CreatedAtAction(nameof(GetTeam), new { id = team.Id }, result);
         }

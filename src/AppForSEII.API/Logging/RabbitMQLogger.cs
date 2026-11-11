@@ -9,8 +9,8 @@ public class RabbitMQLogger : ILogger, IDisposable
 {
     private readonly string _name;
     private readonly RabbitMQLoggerConfiguration _config;
-    private IConnection _connection;
-    private IChannel _channel;
+    private IConnection? _connection;
+    private IChannel? _channel;
     private BasicProperties _properties;
 
 
@@ -29,6 +29,8 @@ public class RabbitMQLogger : ILogger, IDisposable
             Persistent = _config.Durable,
             ContentType = "application/json"
         };
+
+        InitializeAsync().GetAwaiter().GetResult();
 
     }
 
@@ -61,6 +63,7 @@ public class RabbitMQLogger : ILogger, IDisposable
     {
         if (!IsEnabled(logLevel))
             return;
+     
 
         try
         {
@@ -75,14 +78,18 @@ public class RabbitMQLogger : ILogger, IDisposable
                 Exception = exception?.ToString()
             };
 
+            var logJson = JsonSerializer.Serialize(logEntry);
+            var body = Encoding.UTF8.GetBytes(logJson); 
+
+             _channel.BasicPublishAsync( exchange: _config.Exchange, routingKey: "", mandatory: false, basicProperties: _properties, body: body).GetAwaiter().GetResult();
+
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error publishing log message to RabbitMQ: {ex.Message}");
         }
 
-        var logJson = JsonConvert.SerializeObject(logJson); 
-        var body = Encoding.UTF8.GetBytes(logJson); 
+        
     }
 
       public async Task InitializeAsync()
@@ -98,8 +105,6 @@ public class RabbitMQLogger : ILogger, IDisposable
 
         _connection = await factory.CreateConnectionAsync(); 
         _channel = await _connection.CreateChannelAsync(); 
-
-        await _channel.ExchangeDeclareAsync( exchange: _config.Exchange, type: _config.ExchangeType, durable: _config.Durable ); 
         
     }
 

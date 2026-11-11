@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AppForSEII.LogViewer/AppForSEII.LogViewer.csproj" />
+  </Folder>
   <Folder Name="/src/appforseii.api/">
     <Project Path="src/appforseii.api/AppForSEII.API.csproj" />
   </Folder>

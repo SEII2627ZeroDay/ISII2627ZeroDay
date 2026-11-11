@@ -1,8 +1,13 @@
 using Microsoft.Data.Sqlite;
 using System.Data.Common;
+using AppForSEII.API.Logging; 
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register RabbitMQ custom logger provider using "RabbitMQ" block in appsettings.json
+builder.Logging.AddRabbitMQ(builder.Configuration.GetSection("RabbitMQ"));
 // Add services to the container.
 
 builder.Services.AddControllers()
@@ -40,6 +45,8 @@ switch (connection2Database) {
             options.UseSqlServer(connectionString));
         break;
 }
+
+
 
 //Add Identity services to the container
 builder.Services.AddAuthorization();
@@ -96,6 +103,7 @@ using (var scope = app.Services.CreateScope()) {
         logger.LogError(ex, "An error occurred seeding the DB.");
     }
 }
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
