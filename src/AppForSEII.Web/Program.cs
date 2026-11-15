@@ -73,10 +73,12 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-string? URI2API = builder.Configuration.GetValue(typeof(string), "AppForSEIIAPIClient_URL") as string;
+string? URI2API = (builder.Configuration.GetValue(typeof(string), "AppForSEIIAPIClient_URL") as string)
+    ?? builder.Configuration["AppForMoviesAPI"];
 
 //the environment variable URI2API is defined in appsettings.json
-builder.Services.AddScoped<AppForSEIIAPIClient>(sp =>new AppForSEIIAPIClient(URI2API, new HttpClient()));
+builder.Services.AddScoped<IAppForSEIIAPIClient>(sp => new AppForSEIIAPIClient(URI2API, new HttpClient()));
+builder.Services.AddScoped<AppForSEIIAPIClient>(sp => (AppForSEIIAPIClient)sp.GetRequiredService<IAppForSEIIAPIClient>());
 
 var app = builder.Build();
 
