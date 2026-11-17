@@ -1,0 +1,259 @@
+@page "/teams/selectusersforteam"
+@using AppForSEII.Web.API
+@using Microsoft.AspNetCore.Authorization
+
+@inject ILogger<SelectUsersForTeam> logger
+@inject IAppForSEIIAPIClient apiservice
+@inject TeamStateContainer teamState
+@inject NavigationManager navigation
+
+@attribute [Authorize]
+
+<PageTitle>Select Teammates for Team</PageTitle>
+
+<h3>Select Teammates for Creating a Team</h3>
+
+<div class="container-fluid">
+    @if (!string.IsNullOrEmpty(messageError))
+    {
+        <div class="row alert alert-danger" role="alert" id="MessageError">
+            @messageError
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <b>Players Selected:</b> <span id="SelectedCount">@SelectedCount</span>
+            </div>
+            <div>
+                <button class="btn btn-outline-primary" id="showSelectedPlayers" @onclick="@ToggleSelectedPlayers">
+                    Selected Teammates (@SelectedCount)
+                </button>
+            </div>
+            <button class="btn btn-primary" id="ConfirmTeammates" @onclick="@ConfirmTeammates" disabled="@confirmButtonDisabled">
+                Confirm
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <h5>Filter Players</h5>
+        <div class="input-group">
+            <span class="input-group-text">Sport</span>
+            <select class="form-select" aria-label="Filter by sport" @bind="sportSelected" id="selectSport">
+                <option value="All">All</option>
+                @foreach (string sportName in sportNames)
+                {
+                    <option value="@sportName" id="sportNameSelected_@sportName">@sportName</option>
+                }
+            </select>
+
+            <span class="input-group-text">Skill (1-5)</span>
+            <select class="form-select" aria-label="Filter by skill" @bind="skillSelected" id="selectSkill">
+                <option value="">All</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+
+            <button class="btn btn-outline-primary" id="searchUsers" @onclick="@SearchUsers">
+                Search available players
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="@(showSelectedPlayers ? "col-md-9" : "col-md-12")">
+            @if (users == null)
+            {
+                <p><em>Loading available players...</em></p>
+            }
+            else if (users.Count == 0)
+            {
+                <div class="alert alert-warning" role="alert" id="NoUsersWarning">
+                    There are no available players matching your criteria.
+                </div>
+            }
+            else
+            {
+                <div class="mh-100 table-responsive">
+                    <table class="table table-condensed table-hover" id="TableOfUsers">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Surname</th>
+                                <th>Age</th>
+                                <th>Sport</th>
+                                <th>Skill</th>
+                                <th>Select</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in users)
+                            {
+                                var isSelected = IsPlayerSelected(user.Id);
+                                <tr id="UserData_@user.Id">
+                                    <td>@user.Name</td>
+                                    <td>@user.Surname</td>
+                                    <td>@user.Age</td>
+                                    <td>@user.Sport</td>
+                                    <td>@user.Skill</td>
+                                    <td>
+                                        @if (isSelected)
+                                        {
+                                            <button class="btn btn-success btn-sm" id="userToInvite_@user.Id" disabled>
+                                                Selected
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-outline-secondary btn-sm" id="userToInvite_@user.Id" @onclick="@(() => AddPlayer(user))">
+                                                Add
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @if (showSelectedPlayers)
+        {
+            <div class="col-md-3" id="SelectedPlayersCart">
+                <div class="d-grid gap-2">
+                    <h4>Selected Teammates</h4>
+                    @if (SelectedCount == 0)
+                    {
+                        <p class="text-muted"><em>No players selected yet.</em></p>
+                    }
+                    else
+                    {
+                        @foreach (TeamInvitationDTO item in team.InvitedPlayers)
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    id="PlayerSelected_@item.UserId"
+                                    title="Click to remove"
+                                    @onclick="@(() => RemovePlayer(item))">
+                                @item.Name @item.Surname (@item.Age yrs) &times;
+                            </button>
+                        }
+                        <button type="button" class="btn btn-outline-danger btn-sm mt-2" id="ClearCart" @onclick="@ClearCart">
+                            Clear selection
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ICollection<ApplicationUserForTeamDTO>? users;
+    private IList<string> sportNames = new List<string>();
+    private string sportSelected = "All";
+    private string skillSelected = "";
+    private string messageError = "";
+    private bool showSelectedPlayers = false;
+
+    private TeamForCreateDTO team => teamState.Team;
+    private int SelectedCount => team.InvitedPlayers?.Count ?? 0;
+    private bool confirmButtonDisabled => SelectedCount == 0;
+
+    private bool IsPlayerSelected(string userId) =>
+        team.InvitedPlayers?.Any(p => p.UserId == userId) ?? false;
+
+    private void ToggleSelectedPlayers()
+    {
+        showSelectedPlayers = !showSelectedPlayers;
+    }
+
+    private void AddPlayer(ApplicationUserForTeamDTO user)
+    {
+        teamState.AddPlayerToTeam(user);
+        showSelectedPlayers = true;
+    }
+
+    private void RemovePlayer(TeamInvitationDTO item)
+    {
+        teamState.RemovePlayerFromTeam(item);
+        if (SelectedCount == 0)
+        {
+            showSelectedPlayers = false;
+        }
+    }
+
+    private void ClearCart()
+    {
+        teamState.ClearTeamCart();
+        showSelectedPlayers = false;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var initialUsers = await apiservice.GetUsersForTeamAsync(null, null);
+            users = initialUsers ?? new List<ApplicationUserForTeamDTO>();
+            sportNames = users
+                .Select(u => u.Sport)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
+        }
+        catch (ApiException ex)
+        {
+            users = new List<ApplicationUserForTeamDTO>();
+            messageError = "Error! Unable to load available players from the API.";
+            logger.LogError(ex, "Error while connecting to the GetUsersForTeamAsync service");
+        }
+        catch (Exception ex)
+        {
+            users = new List<ApplicationUserForTeamDTO>();
+            messageError = "Error! Could not connect to the API server.";
+            logger.LogError(ex, "Unexpected error while loading users for team");
+        }
+    }
+
+    private async Task SearchUsers()
+    {
+        messageError = "";
+        string? sportFilter = sportSelected == "All" ? null : sportSelected;
+        int? skillFilter = int.TryParse(skillSelected, out int parsedSkill) ? parsedSkill : null;
+
+        if (skillFilter.HasValue && (skillFilter.Value < 1 || skillFilter.Value > 5))
+        {
+            messageError = "Skill must be between 1 and 5.";
+            return;
+        }
+
+        try
+        {
+            users = await apiservice.GetUsersForTeamAsync(sportFilter, skillFilter);
+        }
+        catch (ApiException ex)
+        {
+            users = new List<ApplicationUserForTeamDTO>();
+            messageError = "Error! Unable to filter players from the API.";
+            logger.LogError(ex, "Error while connecting to the GetUsersForTeamAsync service");
+        }
+        catch (Exception ex)
+        {
+            users = new List<ApplicationUserForTeamDTO>();
+            messageError = "Error! Could not connect to the API server.";
+            logger.LogError(ex, "Unexpected error while filtering users for team");
+        }
+    }
+
+    private void ConfirmTeammates()
+    {
+        navigation.NavigateTo("/teams/createteam");
+    }
+}
