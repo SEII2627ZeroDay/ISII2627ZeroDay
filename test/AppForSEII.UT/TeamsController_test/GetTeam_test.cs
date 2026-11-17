@@ -88,10 +88,10 @@ namespace AppForSEII.UT.TeamsController_test
         public async Task GetTeam_ExistingId_ReturnsOkResultWithTeamDetailDTO()
         {
             // Arrange
-            var expectedPlayers = new List<TeamPlayerDTO>
+            var expectedPlayers = new List<TeamInvitationDTO>
             {
-                new TeamPlayerDTO("Lucas", "García López", 26, "Welcome to the Eagles team!", true),
-                new TeamPlayerDTO("Peter", "Jackson", 28, "Join us for next match", false)
+                new TeamInvitationDTO("2", "Lucas", "García López", 26, "Welcome to the Eagles team!", true),
+                new TeamInvitationDTO("3", "Peter", "Jackson", 28, "Join us for next match", false)
             };
 
             var expectedTeam = new TeamDetailDTO(
@@ -102,6 +102,7 @@ namespace AppForSEII.UT.TeamsController_test
                 18,
                 35,
                 "Football",
+                "1",
                 "Elena",
                 "Navarro Martínez",
                 41,
@@ -129,10 +130,11 @@ namespace AppForSEII.UT.TeamsController_test
                 18,
                 30,
                 "Basketball",
+                "1",
                 "Elena",
                 "Navarro Martínez",
                 41,
-                new List<TeamPlayerDTO>()
+                new List<TeamInvitationDTO>()
             );
 
             // Act

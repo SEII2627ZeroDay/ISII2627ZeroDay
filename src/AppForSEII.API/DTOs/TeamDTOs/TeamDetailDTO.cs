@@ -2,10 +2,31 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AppForSEII.API.DTOs.TeamDTOs;
 
-public class TeamDetailDTO
+public class TeamDetailDTO : TeamForCreateDTO
 {
-    public TeamDetailDTO()
+    public TeamDetailDTO() : base()
     {
+    }
+
+    public TeamDetailDTO(
+        int id,
+        string name,
+        string? description,
+        int maxMembers,
+        int minAge,
+        int maxAge,
+        string sport,
+        string captainId,
+        string captainName,
+        string captainSurname,
+        int captainAge,
+        IList<TeamInvitationDTO> invitedPlayers)
+        : base(name, description, maxMembers, minAge, maxAge, sport, captainId, invitedPlayers)
+    {
+        Id = id;
+        CaptainName = captainName;
+        CaptainSurname = captainSurname;
+        CaptainAge = captainAge;
     }
 
     public TeamDetailDTO(
@@ -19,40 +40,12 @@ public class TeamDetailDTO
         string captainName,
         string captainSurname,
         int captainAge,
-        IList<TeamPlayerDTO> invitedPlayers)
+        IList<TeamInvitationDTO> invitedPlayers)
+        : this(id, name, description, maxMembers, minAge, maxAge, sport, "", captainName, captainSurname, captainAge, invitedPlayers)
     {
-        Id = id;
-        Name = name;
-        Description = description;
-        MaxMembers = maxMembers;
-        MinAge = minAge;
-        MaxAge = maxAge;
-        Sport = sport;
-        CaptainName = captainName;
-        CaptainSurname = captainSurname;
-        CaptainAge = captainAge;
-        InvitedPlayers = invitedPlayers;
     }
 
     public int Id { get; set; }
-
-    [Required]
-    [StringLength(9, MinimumLength = 4)]
-    public string Name { get; set; } = "";
-
-    public string? Description { get; set; }
-
-    [Range(1, int.MaxValue)]
-    public int MaxMembers { get; set; }
-
-    [Range(3, int.MaxValue)]
-    public int MinAge { get; set; }
-
-    [Range(3, int.MaxValue)]
-    public int MaxAge { get; set; }
-
-    [Required]
-    public string Sport { get; set; } = "";
 
     [Required]
     public string CaptainName { get; set; } = "";
@@ -62,27 +55,18 @@ public class TeamDetailDTO
 
     public int CaptainAge { get; set; }
 
-    public IList<TeamPlayerDTO> InvitedPlayers { get; set; } = new List<TeamPlayerDTO>();
-
     public override bool Equals(object? obj)
     {
         return obj is TeamDetailDTO other &&
+               base.Equals(obj) &&
                Id == other.Id &&
-               Name == other.Name &&
-               Description == other.Description &&
-               MaxMembers == other.MaxMembers &&
-               MinAge == other.MinAge &&
-               MaxAge == other.MaxAge &&
-               Sport == other.Sport &&
                CaptainName == other.CaptainName &&
                CaptainSurname == other.CaptainSurname &&
-               CaptainAge == other.CaptainAge &&
-               (InvitedPlayers == other.InvitedPlayers || 
-                (InvitedPlayers != null && other.InvitedPlayers != null && InvitedPlayers.SequenceEqual(other.InvitedPlayers)));
+               CaptainAge == other.CaptainAge;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Id, Name, Sport, CaptainName, InvitedPlayers);
+        return HashCode.Combine(base.GetHashCode(), Id, CaptainName, CaptainSurname, CaptainAge);
     }
 }

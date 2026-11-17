@@ -57,10 +57,12 @@ namespace AppForSEII.API.Controllers
                     t.MinAge,
                     t.MaxAge,
                     t.Sport.Name,
+                    t.Captain.Id,
                     t.Captain.Name ?? "",
                     t.Captain.Surname ?? "",
                     t.Captain.Age,
-                    t.TeamInvitations.Select(ti => new TeamPlayerDTO(
+                    t.TeamInvitations.Select(ti => new TeamInvitationDTO(
+                        ti.User.Id,
                         ti.User.Name ?? "",
                         ti.User.Surname ?? "",
                         ti.User.Age,
@@ -115,10 +117,12 @@ namespace AppForSEII.API.Controllers
                     t.MinAge,
                     t.MaxAge,
                     t.Sport.Name,
+                    t.Captain.Id,
                     t.Captain.Name ?? "",
                     t.Captain.Surname ?? "",
                     t.Captain.Age,
-                    t.TeamInvitations.Select(ti => new TeamPlayerDTO(
+                    t.TeamInvitations.Select(ti => new TeamInvitationDTO(
+                        ti.User.Id,
                         ti.User.Name ?? "",
                         ti.User.Surname ?? "",
                         ti.User.Age,
@@ -274,7 +278,8 @@ namespace AppForSEII.API.Controllers
             var invitedPlayerDTOs = (dto.InvitedPlayers ?? new List<TeamInvitationDTO>()).Select(i =>
             {
                 var u = invitedUsers.First(user => user.Id == i.UserId || user.UserName == i.UserId || user.Email == i.UserId);
-                return new TeamPlayerDTO(
+                return new TeamInvitationDTO(
+                    u.Id,
                     u.Name ?? "",
                     u.Surname ?? "",
                     u.Age,
@@ -291,6 +296,7 @@ namespace AppForSEII.API.Controllers
                 team.MinAge,
                 team.MaxAge,
                 sport.Name,
+                captain.Id,
                 captain.Name ?? "",
                 captain.Surname ?? "",
                 captain.Age,
