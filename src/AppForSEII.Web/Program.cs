@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
+using AppForSEII.Web;
 using AppForSEII.Web.Components;
 using AppForSEII.Web.Components.Account;
 using AppForSEII.Web.Data;
@@ -79,6 +80,9 @@ string? URI2API = (builder.Configuration.GetValue(typeof(string), "AppForSEIIAPI
 //the environment variable URI2API is defined in appsettings.json
 builder.Services.AddScoped<IAppForSEIIAPIClient>(sp => new AppForSEIIAPIClient(URI2API, new HttpClient()));
 builder.Services.AddScoped<AppForSEIIAPIClient>(sp => (AppForSEIIAPIClient)sp.GetRequiredService<IAppForSEIIAPIClient>());
+
+//adding an In-memory state container service for Create Team
+builder.Services.AddScoped<TeamStateContainer>();
 
 var app = builder.Build();
 
