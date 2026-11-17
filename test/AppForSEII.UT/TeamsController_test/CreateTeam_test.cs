@@ -116,12 +116,13 @@ namespace AppForSEII.UT.TeamsController_test
                 20,
                 45,
                 "Tennis",
+                "1",
                 "Elena",
                 "Navarro Martínez",
                 41,
-                new List<TeamPlayerDTO>
+                new List<TeamInvitationDTO>
                 {
-                    new TeamPlayerDTO("Lucas", "García López", 26, "Welcome to the team, Lucas!", false)
+                    new TeamInvitationDTO("2", "Lucas", "García López", 26, "Welcome to the team, Lucas!", false)
                 }
             );
 

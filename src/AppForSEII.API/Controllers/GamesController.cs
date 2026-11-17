@@ -47,7 +47,11 @@ namespace AppForSEII.API.Controllers
                 .Include(g => g.Sport)
                 .Include(g => g.ResponsibleFor)
                 .Include(g => g.GameInvitations)
-                    .ThenInclude(gi => gi.Team) 
+                    .ThenInclude(gi => gi.Team)
+                        .ThenInclude(t => t.Captain)
+                .Include(g => g.GameInvitations)
+                    .ThenInclude(gi => gi.Team)
+                        .ThenInclude(t => t.Sport)
                 .Where(g => g.Id == id)
                 .Select(g => new GameDetailDTO(
                     g.Id,
@@ -59,6 +63,11 @@ namespace AppForSEII.API.Controllers
                     g.ResponsibleFor.UserName ?? "",
                     g.GameInvitations.Select(gi => new GameInvitationDTO(
                         gi.Team.Name,
+                        ((gi.Team.Captain.Name ?? "") + " " + (gi.Team.Captain.Surname ?? "")).Trim(),
+                        gi.Team.MaxMembers,
+                        gi.Team.MinAge,
+                        gi.Team.MaxAge,
+                        gi.Team.Sport.Name,
                         gi.AcceptedGame,
                         gi.Message
                     )).ToList()
@@ -122,7 +131,10 @@ namespace AppForSEII.API.Controllers
             //Procesamos las invitaciones a los equipos
             foreach (var invitationDto in gameForCreateDto.GameInvitations)
             {
-                var team = await _context.Teams.FirstOrDefaultAsync(t => t.Name == invitationDto.TeamName);
+                var team = await _context.Teams
+                    .Include(t => t.Captain)
+                    .Include(t => t.Sport)
+                    .FirstOrDefaultAsync(t => t.Name == invitationDto.TeamName);
                 if (team == null)
                 {
                     _logger.LogError($"Team '{invitationDto.TeamName}' not found. Aborting creation.");
@@ -148,6 +160,11 @@ namespace AppForSEII.API.Controllers
                 newGame.ResponsibleFor.UserName ?? "",
                 newGame.GameInvitations.Select(gi => new GameInvitationDTO(
                     gi.Team.Name,
+                    ((gi.Team.Captain?.Name ?? "") + " " + (gi.Team.Captain?.Surname ?? "")).Trim(),
+                    gi.Team.MaxMembers,
+                    gi.Team.MinAge,
+                    gi.Team.MaxAge,
+                    gi.Team.Sport?.Name ?? "",
                     gi.AcceptedGame,
                     gi.Message
                 )).ToList()

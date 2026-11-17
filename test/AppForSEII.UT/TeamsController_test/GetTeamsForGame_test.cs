@@ -62,8 +62,8 @@ namespace AppForSEII.UT.TeamsController_test
         {
             List<TeamDetailDTO> expectedTeams = new List<TeamDetailDTO>()
             {
-                new TeamDetailDTO(1, "Titans", "Basketball squad", 10, 18, 30, "Basketball", "Elena", "Navarro Martínez", 41, new List<TeamPlayerDTO>()),
-                new TeamDetailDTO(2, "Eagles", "University football team", 15, 18, 35, "Football", "Peter", "Jackson", 28, new List<TeamPlayerDTO>()),
+                new TeamDetailDTO(1, "Titans", "Basketball squad", 10, 18, 30, "Basketball", "1", "Elena", "Navarro Martínez", 41, new List<TeamInvitationDTO>()),
+                new TeamDetailDTO(2, "Eagles", "University football team", 15, 18, 35, "Football", "3", "Peter", "Jackson", 28, new List<TeamInvitationDTO>()),
             };
 
             var mock = new Mock<ILogger<TeamsController>>();
@@ -100,8 +100,8 @@ namespace AppForSEII.UT.TeamsController_test
         {
             List<TeamDetailDTO> TeamsDTOs = new List<TeamDetailDTO>()
             {
-                new TeamDetailDTO(1, "Titans", "Basketball squad", 10, 18, 30, "Basketball", "Elena", "Navarro Martínez", 41, new List<TeamPlayerDTO>()),
-                new TeamDetailDTO(2, "Eagles", "University football team", 15, 18, 35, "Football", "Peter", "Jackson", 28, new List<TeamPlayerDTO>()),
+                new TeamDetailDTO(1, "Titans", "Basketball squad", 10, 18, 30, "Basketball", "1", "Elena", "Navarro Martínez", 41, new List<TeamInvitationDTO>()),
+                new TeamDetailDTO(2, "Eagles", "University football team", 15, 18, 35, "Football", "3", "Peter", "Jackson", 28, new List<TeamInvitationDTO>()),
             };
             var TC1WithoutFilters = new List<TeamDetailDTO> {TeamsDTOs[0], TeamsDTOs[1]};
             var TC2TitleFilter = new List<TeamDetailDTO> {TeamsDTOs[0]};

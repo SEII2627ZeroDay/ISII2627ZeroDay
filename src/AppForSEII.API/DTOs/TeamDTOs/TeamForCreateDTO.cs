@@ -25,7 +25,7 @@ public class TeamForCreateDTO
         MaxAge = maxAge;
         Sport = sport;
         CaptainId = captainId;
-        InvitedPlayers = invitedPlayers;
+        InvitedPlayers = invitedPlayers ?? new List<TeamInvitationDTO>();
     }
 
     [Required]
@@ -60,7 +60,7 @@ public class TeamForCreateDTO
                MinAge == other.MinAge &&
                MaxAge == other.MaxAge &&
                Sport == other.Sport &&
-               CaptainId == other.CaptainId &&
+               (string.IsNullOrEmpty(CaptainId) || string.IsNullOrEmpty(other.CaptainId) || CaptainId == other.CaptainId) &&
                (InvitedPlayers == other.InvitedPlayers ||
                 (InvitedPlayers != null && other.InvitedPlayers != null && InvitedPlayers.SequenceEqual(other.InvitedPlayers)));
     }
