@@ -1,0 +1,243 @@
+@page "/referees/selectrefereesforrefereegroup"
+@using AppForSEII.Web.API
+@using Microsoft.AspNetCore.Authorization
+
+@inject ILogger<SelectRefereesForRefereeGroup> logger
+@inject IAppForSEIIAPIClient apiservice
+@inject RefereeGroupStateContainer refereeGroupState
+@inject NavigationManager navigation
+
+@attribute [Authorize]
+
+<PageTitle>Select Referees for Referee Group</PageTitle>
+
+<h3>Select Referees for the Referee Group</h3>
+
+<div class="container-fluid">
+    @if (!string.IsNullOrEmpty(messageError))
+    {
+        <div class="row alert alert-danger" role="alert" id="MessageError">
+            @messageError
+        </div>
+    }
+
+    <div class="row mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <b>Referees Selected:</b> <span id="SelectedCount">@SelectedCount</span>
+            </div>
+            <div>
+                <button class="btn btn-outline-primary" id="showSelectedReferees" @onclick="@ToggleSelectedReferees">
+                    Selected Referees (@SelectedCount)
+                </button>
+            </div>
+            <button class="btn btn-primary" id="ConfirmReferees" @onclick="@ConfirmReferees" disabled="@confirmButtonDisabled">
+                Next
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <h5>Filter Referees</h5>
+        <div class="input-group">
+            <span class="input-group-text">Sport id</span>
+            <input type="number" min="1" class="form-control" aria-label="Sport id" @bind="sportId" id="inputSportId" />
+
+            <span class="input-group-text">Years refereeing (minimum)</span>
+            <input type="number" min="1" class="form-control" aria-label="Minimum years refereeing" @bind="minYearsRefereeing" id="inputMinYears" />
+
+            <button class="btn btn-outline-primary" id="searchReferees" @onclick="@SearchReferees">
+                Search available referees
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="@(showSelectedReferees ? "col-md-9" : "col-md-12")">
+            @if (referees == null)
+            {
+                <p><em>Enter the sport of the game and search the available referees.</em></p>
+            }
+            else if (referees.Count == 0)
+            {
+                <div class="alert alert-warning" role="alert" id="NoRefereesWarning">
+                    There are no available referees matching your criteria.
+                </div>
+            }
+            else
+            {
+                <div class="mh-100 table-responsive">
+                    <table class="table table-condensed table-hover" id="TableOfReferees">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Surname</th>
+                                <th>Years refereeing</th>
+                                <th>Rating</th>
+                                <th>Select</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var referee in referees)
+                            {
+                                var isSelected = IsRefereeSelected(referee.Id);
+                                <tr id="RefereeData_@referee.Id">
+                                    <td>@referee.Name</td>
+                                    <td>@referee.Surname</td>
+                                    <td>@referee.YearsRefereeing</td>
+                                    <td>@referee.Rating</td>
+                                    <td>
+                                        @if (isSelected)
+                                        {
+                                            <button class="btn btn-success btn-sm" id="refereeToSelect_@referee.Id" disabled>
+                                                Selected
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-outline-secondary btn-sm" id="refereeToSelect_@referee.Id" @onclick="@(() => AddReferee(referee))">
+                                                Add
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @if (showSelectedReferees)
+        {
+            <div class="col-md-3" id="SelectedRefereesCart">
+                <div class="d-grid gap-2">
+                    <h4>Selected Referees</h4>
+                    @if (SelectedCount == 0)
+                    {
+                        <p class="text-muted"><em>No referees selected yet.</em></p>
+                    }
+                    else
+                    {
+                        @foreach (RefereeForRefereeGroupDTO item in refereeGroupState.SelectedReferees)
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    id="RefereeSelected_@item.Id"
+                                    title="Click to remove"
+                                    @onclick="@(() => RemoveReferee(item))">
+                                @item.Name @item.Surname (@item.YearsRefereeing yrs, rating @item.Rating) &times;
+                            </button>
+                        }
+                        <button type="button" class="btn btn-outline-danger btn-sm mt-2" id="ClearCart" @onclick="@ClearCart">
+                            Clear selection
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ICollection<RefereeForRefereeGroupDTO>? referees;
+    private int sportId;
+    private int? minYearsRefereeing;
+    private string messageError = "";
+    private bool showSelectedReferees = false;
+
+    private int SelectedCount => refereeGroupState.SelectedReferees.Count;
+    private bool confirmButtonDisabled => SelectedCount == 0;
+
+    protected override void OnInitialized()
+    {
+        // if the user comes back from the next step, the sport already chosen is shown again
+        sportId = refereeGroupState.SportId;
+    }
+
+    private bool IsRefereeSelected(string refereeId) =>
+        refereeGroupState.SelectedReferees.Any(r => r.Id == refereeId);
+
+    private void ToggleSelectedReferees()
+    {
+        showSelectedReferees = !showSelectedReferees;
+    }
+
+    private void AddReferee(RefereeForRefereeGroupDTO referee)
+    {
+        refereeGroupState.AddRefereeToGroup(referee);
+        showSelectedReferees = true;
+    }
+
+    private void RemoveReferee(RefereeForRefereeGroupDTO referee)
+    {
+        refereeGroupState.RemoveRefereeFromGroup(referee);
+        if (SelectedCount == 0)
+        {
+            showSelectedReferees = false;
+        }
+    }
+
+    private void ClearCart()
+    {
+        refereeGroupState.ClearSelectedReferees();
+        showSelectedReferees = false;
+    }
+
+    private async Task SearchReferees()
+    {
+        messageError = "";
+
+        if (sportId <= 0)
+        {
+            messageError = "Enter the id of the sport of the game.";
+            return;
+        }
+
+        if (minYearsRefereeing.HasValue && minYearsRefereeing.Value < 1)
+        {
+            messageError = "Years refereeing must be higher than 0.";
+            return;
+        }
+
+        try
+        {
+            referees = await apiservice.GetRefereesForRefereeGroupAsync(sportId, minYearsRefereeing);
+
+            // if the user changes the sport, the referees selected for the previous one are discarded
+            if (refereeGroupState.SportId != sportId)
+            {
+                refereeGroupState.ClearSelectedReferees();
+                showSelectedReferees = false;
+                refereeGroupState.SportId = sportId;
+            }
+        }
+        catch (ApiException<string> ex)
+        {
+            // the API returns BadRequest with the description of the error
+            // (for instance, there are no referees available for the sport)
+            referees = new List<RefereeForRefereeGroupDTO>();
+            messageError = ex.Result;
+            logger.LogError(ex, "Error returned by the GetRefereesForRefereeGroupAsync service");
+        }
+        catch (ApiException ex)
+        {
+            referees = new List<RefereeForRefereeGroupDTO>();
+            messageError = "Error! Unable to load available referees from the API.";
+            logger.LogError(ex, "Error while connecting to the GetRefereesForRefereeGroupAsync service");
+        }
+        catch (Exception ex)
+        {
+            referees = new List<RefereeForRefereeGroupDTO>();
+            messageError = "Error! Could not connect to the API server.";
+            logger.LogError(ex, "Unexpected error while loading referees for the referee group");
+        }
+    }
+
+    private void ConfirmReferees()
+    {
+        // next step of the basic flow: the name, roles and role descriptions of the group
+        // (page to be developed in the next task)
+        navigation.NavigateTo("/referees/createrefereegroup");
+    }
+}
