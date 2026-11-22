@@ -180,7 +180,7 @@
 
     private void ClearCart()
     {
-        refereeGroupState.ClearSelectedReferees();
+        refereeGroupState.ClearRefereeGroupCart();
         showSelectedReferees = false;
     }
 
@@ -207,7 +207,7 @@
             // if the user changes the sport, the referees selected for the previous one are discarded
             if (refereeGroupState.SportId != sportId)
             {
-                refereeGroupState.ClearSelectedReferees();
+                refereeGroupState.ClearRefereeGroupCart();
                 showSelectedReferees = false;
                 refereeGroupState.SportId = sportId;
             }
