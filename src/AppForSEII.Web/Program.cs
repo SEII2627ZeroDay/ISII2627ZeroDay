@@ -83,6 +83,8 @@ builder.Services.AddScoped<AppForSEIIAPIClient>(sp => (AppForSEIIAPIClient)sp.Ge
 
 //adding an In-memory state container service for Create Team
 builder.Services.AddScoped<TeamStateContainer>();
+//adding an In-memory state container service for Add Referee Group to a Game
+builder.Services.AddScoped<RefereeGroupStateContainer>();
 
 var app = builder.Build();
 
